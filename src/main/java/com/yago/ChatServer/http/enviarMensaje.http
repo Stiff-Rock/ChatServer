@@ -1,0 +1,8 @@
+POST http://localhost:8081/api/mensajes/enviar
+Content-Type: application/json
+
+{
+  "remitente": "Usuario1",
+  "destinatario": "Usuario2",
+  "mensaje": "Hola mundo"
+}
