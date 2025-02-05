@@ -1,2 +1,0 @@
-GET http://localhost:8081/api/mensajes/recibir/Usuario2
-Content-Type: application/json
