@@ -17,7 +17,7 @@ public class MensajeController {
         mensaje.setId((long) (mensajes.size() + 1));
         mensaje.setTimestamp(LocalDateTime.now());
         mensajes.add(mensaje);
-        System.out.println("Mensaje enviado: " + mensaje.getMensaje());
+        System.out.println("Mensaje enviado por " + mensaje.getRemitente() + " :" + mensaje.getMensaje());
         return mensaje;
     }
 
@@ -27,6 +27,7 @@ public class MensajeController {
         for (Mensaje mensaje : mensajes) {
             if (mensaje.getDestinatario().equals(destinatario)) {
                 mensajesDestinatario.add(mensaje);
+                System.out.println("Mensaje enviado a " + mensaje.getDestinatario() + " :" + mensaje.getMensaje());
             }
         }
         return mensajesDestinatario;
