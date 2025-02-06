@@ -17,6 +17,7 @@ public class Mensaje {
         this.timestamp = timestamp;
     }
 
+    // Getters
     public Long getId() {
         return id;
     }
@@ -37,6 +38,7 @@ public class Mensaje {
         return timestamp;
     }
 
+    // Setters
     public void setId(Long id) {
         this.id = id;
     }
