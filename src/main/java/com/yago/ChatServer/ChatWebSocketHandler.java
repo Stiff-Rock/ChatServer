@@ -1,35 +1,53 @@
 package com.yago.ChatServer;
 
+import org.springframework.lang.NonNull;
+import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
+
 import java.io.IOException;
-import java.util.Set;
-import java.util.concurrent.CopyOnWriteArraySet;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 
 public class ChatWebSocketHandler extends TextWebSocketHandler {
 
-    private static final Set<WebSocketSession> sessions = new CopyOnWriteArraySet<>();
+    private static final HashMap<String, WebSocketSession> userSessions = new HashMap<>();
 
+    // ENVIAR EL HISTORIAL DE MENSAJES
     @Override
-    public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-        sessions.add(session);
+    public void afterConnectionEstablished(@NonNull WebSocketSession session) {
+        String query;
+        if (session.getUri() != null) {
+            query = session.getUri().getQuery();
+
+            String username;
+            if (query != null && query.startsWith("username=")) {
+                username = query.substring("username=".length());
+                username = URLDecoder.decode(username, StandardCharsets.UTF_8);
+                if (username != null) userSessions.put(username, session);
+            }
+        }
     }
 
     @Override
-    protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
-        broadcastMessage(message.getPayload());
+    public void afterConnectionClosed(@NonNull WebSocketSession session, @NonNull CloseStatus status) {
+        System.out.println("Closed connection with: " + userSessions.get(session));
     }
 
-    @Override
-    public void afterConnectionClosed(WebSocketSession session, org.springframework.web.socket.CloseStatus status) throws Exception {
-        sessions.remove(session);
+    public void broadcastMessageToGroup(String message) {
+        System.out.println("MESSAGE TO GROUP: " + message);
     }
 
-    private void broadcastMessage(String message) throws IOException {
-        for (WebSocketSession session : sessions) {
-            if (session.isOpen()) {
+    public void broadcastMessageToUser(String message, String recipient) {
+        WebSocketSession session = userSessions.get(recipient);
+
+        if (session.isOpen()) {
+            try {
                 session.sendMessage(new TextMessage(message));
+            } catch (IOException e) {
+                System.err.println("Error broadcasting message \"" + message + "\": " + e.getMessage());
             }
         }
     }
