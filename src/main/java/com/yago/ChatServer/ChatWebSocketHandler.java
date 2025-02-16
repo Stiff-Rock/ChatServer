@@ -9,13 +9,15 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class ChatWebSocketHandler extends TextWebSocketHandler {
 
-    private static final HashMap<String, WebSocketSession> userSessions = new HashMap<>();
+    private final HashMap<String, WebSocketSession> userSessions = new HashMap<>();
+    private final HashMap<WebSocketSession, String> sessionUsers = new HashMap<>();
 
-    // ENVIAR EL HISTORIAL DE MENSAJES
     @Override
     public void afterConnectionEstablished(@NonNull WebSocketSession session) {
         String query;
@@ -26,14 +28,21 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             if (query != null && query.startsWith("username=")) {
                 username = query.substring("username=".length());
                 username = URLDecoder.decode(username, StandardCharsets.UTF_8);
-                if (username != null) userSessions.put(username, session);
+                if (username != null && !userSessions.containsKey(username) && !sessionUsers.containsValue(username)) {
+                    userSessions.put(username, session);
+                    sessionUsers.put(session, username);
+                }
             }
         }
     }
 
     @Override
     public void afterConnectionClosed(@NonNull WebSocketSession session, @NonNull CloseStatus status) {
-        System.out.println("Closed connection with: " + userSessions.get(session));
+        String user = sessionUsers.get(session);
+        if (user != null) {
+            userSessions.remove(user);
+            sessionUsers.remove(session);
+        }
     }
 
     public void broadcastMessageToGroup(String message) {
@@ -43,12 +52,16 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
     public void broadcastMessageToUser(String message, String recipient) {
         WebSocketSession session = userSessions.get(recipient);
 
-        if (session.isOpen()) {
+        if (session != null && session.isOpen()) {
             try {
                 session.sendMessage(new TextMessage(message));
             } catch (IOException e) {
                 System.err.println("Error broadcasting message \"" + message + "\": " + e.getMessage());
             }
         }
+    }
+
+    public List<String> getOnlineUsers() {
+        return new ArrayList<>(userSessions.keySet());
     }
 }
