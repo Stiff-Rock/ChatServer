@@ -1,24 +1,28 @@
 package com.yago.ChatServer.controller;
 
-import com.yago.ChatServer.ChatWebSocketHandler;
 import com.yago.ChatServer.model.ApiResponse;
 import com.yago.ChatServer.model.User;
-import org.mindrot.jbcrypt.BCrypt;
+import com.yago.ChatServer.repository.UserRepository;
+import com.yago.ChatServer.service.UserService;
+import com.yago.ChatServer.websocket.ChatWebSocketHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/users")
 public class UsersController {
-    private Map<String, User> users = new HashMap<>();
+    @Autowired
+    private UserService userService;
 
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
     private final ChatWebSocketHandler webSocketHandler;
 
     @Autowired
@@ -26,42 +30,41 @@ public class UsersController {
         this.webSocketHandler = webSocketHandler;
     }
 
+    /**
+     * @param user
+     * @return
+     */
     @PostMapping("/register")
     public ResponseEntity<ApiResponse> registerUser(@RequestBody User user) {
-        if (user.getPwd().isBlank())
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(new ApiResponse("Error: Contraseña vacía."));
+        System.out.println("Register attepmt with user <" + user.getUsername() + ">");
+        String responseMessage = userService.registerUser(user);
 
-        hashPassword(user);
-
-        User existingUser = users.get(user.getUsername());
-
-        if (existingUser != null)
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(new ApiResponse("Error: El nombre de usuario ya está en uso."));
-
-
-        users.put(user.getUsername(), user);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse("Usuario registrado con éxito."));
+        if (responseMessage.equals("Usuario registrado con éxito.")) {
+            System.out.println("Register Successful");
+            return ResponseEntity.status(201).body(new ApiResponse(responseMessage));
+        } else {
+            System.out.println("Register Failed");
+            return ResponseEntity.status(409).body(new ApiResponse(responseMessage));
+        }
     }
 
+    /**
+     * @param user
+     * @return
+     */
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse> logInUser(@RequestBody User user) {
-        if (user.getPwd().isBlank())
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(new ApiResponse("Error: Contraseña vacía."));
+    public ResponseEntity<ApiResponse> loginUser(@RequestBody User user) {
+        System.out.println("LogIn attepmt with user <" + user.getUsername() + ">");
+        String responseMessage = userService.loginUser(user);
 
-        System.out.println(user.getUsername() + " attempting login...");
-
-        hashPassword(user);
-
-        User existingUser = users.get(user.getUsername());
-
-        if (existingUser != null && existingUser.getPwd().equals(user.getPwd()))
-            return ResponseEntity.ok(new ApiResponse("Inicio de sesión exitoso"));
-
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiResponse("Error: Credenciales incorrectas"));
+        if (responseMessage.equals("Inicio de sesión exitoso.")) {
+            System.out.println("LogIn Successful");
+            return ResponseEntity.ok(new ApiResponse(responseMessage));
+        } else {
+            System.out.println("LogIn Failed");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiResponse(responseMessage));
+        }
     }
-
-    //TODO: INVESTIGAR MANERA DE TENER LA LISTA GLOBAL DE USUARIOS MODO SPRINGBOOT
 
     /**
      * Endpoint para obtener la lista de usuarios online (conectados al WebSocket)
@@ -71,23 +74,14 @@ public class UsersController {
     @GetMapping("/online")
     public List<User> getOnlineUsers() {
         List<User> onlineUsers = new ArrayList<>();
-        for (String username : webSocketHandler.getOnlineUsers()) {
-            User user = users.get(username);
+        List<String> onlineUsernames = webSocketHandler.getOnlineUsers();
+
+        for (String username : onlineUsernames) {
+            User user = userRepository.findByUsername(username);
             if (user != null) {
                 onlineUsers.add(user);
             }
         }
         return onlineUsers;
-    }
-
-    /**
-     * Hashea la contraseña introducida por el usuario por seguridad
-     *
-     * @param user Usuario cuya contraseña va a ser hasheada
-     */
-    private void hashPassword(User user) {
-        String salt = BCrypt.gensalt(12);
-        String hashedPwd = BCrypt.hashpw(user.getPwd(), salt);
-        user.setPwd(hashedPwd);
     }
 }

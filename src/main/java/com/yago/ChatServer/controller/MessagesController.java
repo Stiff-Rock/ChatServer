@@ -1,6 +1,6 @@
 package com.yago.ChatServer.controller;
 
-import com.yago.ChatServer.ChatWebSocketHandler;
+import com.yago.ChatServer.websocket.ChatWebSocketHandler;
 import com.yago.ChatServer.model.Message;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;

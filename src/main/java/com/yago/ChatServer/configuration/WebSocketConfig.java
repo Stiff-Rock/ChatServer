@@ -1,5 +1,6 @@
-package com.yago.ChatServer;
+package com.yago.ChatServer.configuration;
 
+import com.yago.ChatServer.websocket.ChatWebSocketHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
