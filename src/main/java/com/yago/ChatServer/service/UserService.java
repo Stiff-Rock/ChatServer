@@ -1,10 +1,13 @@
 package com.yago.ChatServer.service;
 
+import com.yago.ChatServer.dto.UserDTO;
 import com.yago.ChatServer.model.User;
 import com.yago.ChatServer.repository.UserRepository;
 import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.AbstractMap.SimpleEntry;
 
 @Service
 public class UserService {
@@ -36,14 +39,12 @@ public class UserService {
      * @param user Usuario que intenta iniciar sesión
      * @return Mensaje del resultado de la operación
      */
-    public String loginUser(User user) {
+    public UserDTO loginUser(User user) {
         User existingUser = userRepository.findByUsername(user.getUsername());
 
-        if (existingUser == null) return "Error: Usuario no encontrado.";
-        
-        if (!BCrypt.checkpw(user.getPassword(), existingUser.getPassword())) return "Error: Credenciales incorrectas.";
+        if (existingUser == null || !BCrypt.checkpw(user.getPassword(), existingUser.getPassword())) return null;
 
-        return "Inicio de sesión exitoso.";
+        return new UserDTO(existingUser.getId(), existingUser.getUsername());
     }
 
     /**

@@ -1,6 +1,5 @@
-package com.yago.ChatServer.configuration;
+package com.yago.ChatServer.websocket;
 
-import com.yago.ChatServer.websocket.ChatWebSocketHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
@@ -21,7 +20,7 @@ public class WebSocketConfig implements WebSocketConfigurer {
         registry.addHandler(chatWebSocketHandler(), "/chat")
                 .setAllowedOrigins("*");
 
-        registry.addHandler(new ChatWebSocketHandler(), "/group/{groupId}")
+        registry.addHandler(chatWebSocketHandler(), "/group/{groupId}")
                 .setAllowedOrigins("*");
     }
 }

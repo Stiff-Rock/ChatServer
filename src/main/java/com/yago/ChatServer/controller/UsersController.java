@@ -1,5 +1,6 @@
 package com.yago.ChatServer.controller;
 
+import com.yago.ChatServer.dto.UserDTO;
 import com.yago.ChatServer.model.ApiResponse;
 import com.yago.ChatServer.model.User;
 import com.yago.ChatServer.repository.UserRepository;
@@ -16,23 +17,22 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/users")
 public class UsersController {
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
+    private final UserService userService;
+    private final UserRepository userRepository;
     private final ChatWebSocketHandler webSocketHandler;
 
     @Autowired
-    public UsersController(ChatWebSocketHandler webSocketHandler) {
+    public UsersController(UserService userService, UserRepository userRepository, ChatWebSocketHandler webSocketHandler) {
+        this.userService = userService;
+        this.userRepository = userRepository;
         this.webSocketHandler = webSocketHandler;
     }
 
     /**
-     * @param user
-     * @return
+     * Endpoint para registrar un nuevo usuario con un username único.
+     *
+     * @param user Usuario que intenta registrarse.
+     * @return Respuesta del servidor con el resultado dela acción.
      */
     @PostMapping("/register")
     public ResponseEntity<ApiResponse> registerUser(@RequestBody User user) {
@@ -49,20 +49,22 @@ public class UsersController {
     }
 
     /**
-     * @param user
-     * @return
+     * Endpoint para autenticar al usuario a través de sus credenciales.
+     *
+     * @param user Usuario que intenta inicar sesión.
+     * @return Respuesta del servidor con el resultado dela acción.
      */
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse> loginUser(@RequestBody User user) {
+    public ResponseEntity<?> loginUser(@RequestBody User user) {
         System.out.println("LogIn attepmt with user <" + user.getUsername() + ">");
-        String responseMessage = userService.loginUser(user);
+        UserDTO userDto = userService.loginUser(user);
 
-        if (responseMessage.equals("Inicio de sesión exitoso.")) {
+        if (userDto != null) {
             System.out.println("LogIn Successful");
-            return ResponseEntity.ok(new ApiResponse(responseMessage));
+            return ResponseEntity.ok(userDto);
         } else {
             System.out.println("LogIn Failed");
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiResponse(responseMessage));
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiResponse("Inicio de sesión incorrecto"));
         }
     }
 
@@ -72,16 +74,27 @@ public class UsersController {
      * @return Lista de {@link User}
      */
     @GetMapping("/online")
-    public List<User> getOnlineUsers() {
-        List<User> onlineUsers = new ArrayList<>();
+    public List<UserDTO> getOnlineUsers() {
+        List<UserDTO> onlineUsers = new ArrayList<>();
         List<String> onlineUsernames = webSocketHandler.getOnlineUsers();
 
         for (String username : onlineUsernames) {
             User user = userRepository.findByUsername(username);
             if (user != null) {
-                onlineUsers.add(user);
+                onlineUsers.add(new UserDTO(user.getId(), username));
             }
         }
+
         return onlineUsers;
+    }
+
+    @GetMapping("/{username}")
+    public ResponseEntity<UserDTO> getUserByUsername(@PathVariable String username) {
+        User user = userRepository.findByUsername(username);
+
+        if (user == null) return ResponseEntity.notFound().build();
+
+        UserDTO userDto = new UserDTO(user.getId(), user.getUsername());
+        return ResponseEntity.ok(userDto);
     }
 }
