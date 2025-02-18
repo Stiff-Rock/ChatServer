@@ -30,8 +30,8 @@ public class MessagesController {
         System.out.println("Mensaje enviado por " + message.getRemitente() + ": " + message.getMensaje());
 
         //TODO: GESTIONAR LOS GRUPOS, AÑADIR EN LA CLASE MESSAGE QUE EL DESTINATARIO SEA USUARIO O GRUPO (O QUIZAS OTRA CLASE?)
-        if (true) webSocketHandler.broadcastMessageToUser(message.getMensaje(), message.getDestinatario());
-        else webSocketHandler.broadcastMessageToGroup(message.getMensaje());
+        if (true) webSocketHandler.broadcastMessageToPrivateChat(message.getMensaje(), message.getDestinatario());
+        else webSocketHandler.broadcastMessageToChatGroup(message.getMensaje());
 
         return message;
     }

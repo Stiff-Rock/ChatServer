@@ -1,10 +1,8 @@
 package com.yago.ChatServer.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Column;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
+import jakarta.persistence.*;
+
+import java.util.Set;
 
 @Entity
 public class User {
@@ -17,6 +15,9 @@ public class User {
     private String username;
 
     private String password;
+
+    @ManyToMany(mappedBy = "participants")
+    private Set<Chat> chats;
 
     public User() {
     }
@@ -48,5 +49,13 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public Set<Chat> getChats() {
+        return chats;
+    }
+
+    public void setChats(Set<Chat> chats) {
+        this.chats = chats;
     }
 }

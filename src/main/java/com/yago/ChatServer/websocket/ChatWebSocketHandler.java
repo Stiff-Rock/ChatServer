@@ -45,11 +45,11 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
         }
     }
 
-    public void broadcastMessageToGroup(String message) {
+    public void broadcastMessageToChatGroup(String message) {
         System.out.println("MESSAGE TO GROUP: " + message);
     }
 
-    public void broadcastMessageToUser(String message, String recipient) {
+    public void broadcastMessageToPrivateChat(String message, String recipient) {
         WebSocketSession session = userSessions.get(recipient);
 
         if (session != null && session.isOpen()) {
