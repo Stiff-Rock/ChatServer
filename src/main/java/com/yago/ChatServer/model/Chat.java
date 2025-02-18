@@ -14,11 +14,7 @@ public class Chat {
     private boolean isGroupChat;
 
     @ManyToMany
-    @JoinTable(
-            name = "users_chats",
-            joinColumns = @JoinColumn(name = "chat_id"),
-            inverseJoinColumns = @JoinColumn(name = "user_id")
-    )
+    @JoinTable(name = "users_chats", joinColumns = @JoinColumn(name = "chat_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
     private Set<User> participants;
 
     public Chat(String name, boolean isGroupChat, Set<User> participants) {

@@ -1,50 +1,59 @@
 package com.yago.ChatServer.service;
 
-import com.yago.ChatServer.dto.UserDTO;
+import com.yago.ChatServer.dto.CredentialsDTO;
 import com.yago.ChatServer.model.User;
+import com.yago.ChatServer.model.UserPassword;
+import com.yago.ChatServer.repository.UserPasswordRepository;
 import com.yago.ChatServer.repository.UserRepository;
 import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.AbstractMap.SimpleEntry;
-
 @Service
 public class UserService {
+    private final UserRepository userRepository;
+    private final UserPasswordRepository userPasswordRepository;
 
     @Autowired
-    private UserRepository userRepository;
+    public UserService(UserPasswordRepository userPasswordRepository, UserRepository userRepository) {
+        this.userPasswordRepository = userPasswordRepository;
+        this.userRepository = userRepository;
+    }
 
     /**
      * Registra en la BBDD SQLite si no existe ya
      *
-     * @param user Usuario que va a ser registrado
+     * @param credentials Usuario que va a ser registrado
      * @return Mensaje del resultado de la operación
      */
-    public String registerUser(User user) {
-        if (userRepository.existsByUsername(user.getUsername())) {
+    public String registerUser(CredentialsDTO credentials) {
+        if (userRepository.existsByUsername(credentials.getUsername()))
             return "Error: El nombre de usuario ya está en uso.";
-        }
 
-        String encryptedPassword = encryptPassword(user.getPassword());
-        user.setPassword(encryptedPassword);
+        String encryptedPassword = encryptPassword(credentials.getPassword());
+
+        User user = new User(credentials.getUsername());
+        UserPassword usrPwd = new UserPassword(user, encryptedPassword);
 
         userRepository.save(user);
+        userPasswordRepository.save(usrPwd);
+
         return "Usuario registrado con éxito.";
     }
 
     /**
      * Autentica al usuario en la BBDD si las credenciales coniciden
      *
-     * @param user Usuario que intenta iniciar sesión
+     * @param credentials Usuario que intenta iniciar sesión
      * @return Mensaje del resultado de la operación
      */
-    public UserDTO loginUser(User user) {
-        User existingUser = userRepository.findByUsername(user.getUsername());
+    public User loginUser(CredentialsDTO credentials) {
+        User existingUser = userRepository.findByUsername(credentials.getUsername());
+        UserPassword usrPwd = userPasswordRepository.findByUserUsername(existingUser.getUsername());
 
-        if (existingUser == null || !BCrypt.checkpw(user.getPassword(), existingUser.getPassword())) return null;
+        if (!BCrypt.checkpw(credentials.getPassword(), usrPwd.getPassword())) return null;
 
-        return new UserDTO(existingUser.getId(), existingUser.getUsername());
+        return existingUser;
     }
 
     /**

@@ -1,12 +1,15 @@
 package com.yago.ChatServer.dto;
 
+import com.yago.ChatServer.model.User;
+
 import java.util.List;
+import java.util.Set;
 
-public class CreateGroupRequest {
+public class CreateGroupDTO {
     private String groupName;
-    private List<UserDTO> participants;
+    private Set<User> participants;
 
-    public CreateGroupRequest(String groupName, List<UserDTO> participants) {
+    public CreateGroupDTO(String groupName, Set<User> participants) {
         this.groupName = groupName;
         this.participants = participants;
     }
@@ -19,11 +22,11 @@ public class CreateGroupRequest {
         this.groupName = groupName;
     }
 
-    public List<UserDTO> getParticipants() {
+    public Set<User> getParticipants() {
         return participants;
     }
 
-    public void setParticipants(List<UserDTO> participants) {
+    public void setParticipants(Set<User> participants) {
         this.participants = participants;
     }
 }

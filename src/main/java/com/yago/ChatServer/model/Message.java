@@ -1,58 +1,87 @@
 package com.yago.ChatServer.model;
 
-import java.time.LocalDateTime;
+import jakarta.persistence.*;
 
+import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
+
+@Entity
 public class Message {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String remitente;
-    private String destinatario;
-    private String mensaje;
+
+    @ManyToOne
+    @JoinColumn(name = "sender_id")
+    private User sender;
+
+    @ManyToOne
+    @JoinColumn(name = "chat_id")
+    private Chat chat;
+
+    @ManyToMany
+    @JoinTable(name = "message_recipients", joinColumns = @JoinColumn(name = "message_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
+    private Set<User> recipients = new HashSet<>();
+
+    private String messageContent;
+
     private LocalDateTime timestamp;
 
-    public Message(Long id, String remitente, String destinatario, String mensaje, LocalDateTime timestamp) {
-        this.id = id;
-        this.remitente = remitente;
-        this.destinatario = destinatario;
-        this.mensaje = mensaje;
+    public Message() {
+    }
+
+    public Message(User sender, Chat chat, Set<User> recipients, String messageContent, LocalDateTime timestamp) {
+        this.sender = sender;
+        this.chat = chat;
+        this.recipients = recipients;
+        this.messageContent = messageContent;
         this.timestamp = timestamp;
     }
 
-    // Getters
     public Long getId() {
         return id;
     }
 
-    public String getRemitente() {
-        return remitente;
-    }
-
-    public String getDestinatario() {
-        return destinatario;
-    }
-
-    public String getMensaje() {
-        return mensaje;
-    }
-
-    public LocalDateTime getTimestamp() {
-        return timestamp;
-    }
-
-    // Setters
     public void setId(Long id) {
         this.id = id;
     }
 
-    public void setRemitente(String remitente) {
-        this.remitente = remitente;
+    public User getSender() {
+        return sender;
     }
 
-    public void setDestinatario(String destinatario) {
-        this.destinatario = destinatario;
+    public void setSender(User sender) {
+        this.sender = sender;
     }
 
-    public void setMensaje(String mensaje) {
-        this.mensaje = mensaje;
+    public Chat getChat() {
+        return chat;
+    }
+
+    public void setChat(Chat chat) {
+        this.chat = chat;
+    }
+
+    public Set<User> getRecipients() {
+        return recipients;
+    }
+
+    public void setRecipients(Set<User> recipients) {
+        this.recipients = recipients;
+    }
+
+    public String getMessageContent() {
+        return messageContent;
+    }
+
+    public void setMessageContent(String messageContent) {
+        this.messageContent = messageContent;
+    }
+
+    public LocalDateTime getTimestamp() {
+        return timestamp;
     }
 
     public void setTimestamp(LocalDateTime timestamp) {
