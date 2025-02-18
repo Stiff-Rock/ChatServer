@@ -1,7 +1,7 @@
 package com.yago.ChatServer.controller;
 
-import com.yago.ChatServer.websocket.ChatWebSocketHandler;
 import com.yago.ChatServer.model.Message;
+import com.yago.ChatServer.websocket.ChatWebSocketHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,11 +27,13 @@ public class MessagesController {
         message.setTimestamp(LocalDateTime.now());
         mensajes.add(message);
 
-        System.out.println("Mensaje enviado por " + message.getRemitente() + ": " + message.getMensaje());
+        System.out.println("Mensaje enviado por " + message.getSender() + ": " + message.getMessageContent());
 
-        //TODO: GESTIONAR LOS GRUPOS, AÑADIR EN LA CLASE MESSAGE QUE EL DESTINATARIO SEA USUARIO O GRUPO (O QUIZAS OTRA CLASE?)
-        if (true) webSocketHandler.broadcastMessageToPrivateChat(message.getMensaje(), message.getDestinatario());
-        else webSocketHandler.broadcastMessageToChatGroup(message.getMensaje());
+        boolean isChatGroup = message.getChat().isGroupChat();
+
+        if (isChatGroup)            //TODO: ESTO ESTA FATAL
+            webSocketHandler.broadcastMessageToPrivateChat(message.getMessageContent(), message.getRecipients().toArray()[0].toString());
+        else webSocketHandler.broadcastMessageToChatGroup(message.getMessageContent());
 
         return message;
     }
@@ -39,10 +41,12 @@ public class MessagesController {
     @GetMapping("/recieve/{recipient}")
     public List<Message> recieveMessage(@PathVariable String recipient) {
         List<Message> mensajesDestinatario = new ArrayList<>();
-        for (Message mensaje : mensajes) {
-            if (mensaje.getDestinatario().equals(recipient)) {
-                mensajesDestinatario.add(mensaje);
-                System.out.println("Mensaje enviado a " + mensaje.getDestinatario() + ": " + mensaje.getMensaje());
+        for (Message message : mensajes) {
+            //TODO: ESTO ESTA FATAL
+            if (message.getRecipients().toArray()[0].toString().equals(recipient)) {
+                mensajesDestinatario.add(message);
+                //TODO: ESTO ESTA FATAL
+                System.out.println("Mensaje enviado a " + message.getRecipients().toArray()[0].toString() + ": " + message.getMessageContent());
             }
         }
         return mensajesDestinatario;
