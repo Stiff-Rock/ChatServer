@@ -1,11 +1,17 @@
 package com.yago.ChatServer.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 public class Message {
 
@@ -29,62 +35,11 @@ public class Message {
 
     private LocalDateTime timestamp;
 
-    public Message() {
-    }
-
-    public Message(User sender, Chat chat, Set<User> recipients, String messageContent, LocalDateTime timestamp) {
-        this.sender = sender;
-        this.chat = chat;
-        this.recipients = recipients;
-        this.messageContent = messageContent;
+    public Message(LocalDateTime timestamp, String messageContent, Set<User> recipients, Chat chat, User sender) {
         this.timestamp = timestamp;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public User getSender() {
-        return sender;
-    }
-
-    public void setSender(User sender) {
-        this.sender = sender;
-    }
-
-    public Chat getChat() {
-        return chat;
-    }
-
-    public void setChat(Chat chat) {
-        this.chat = chat;
-    }
-
-    public Set<User> getRecipients() {
-        return recipients;
-    }
-
-    public void setRecipients(Set<User> recipients) {
-        this.recipients = recipients;
-    }
-
-    public String getMessageContent() {
-        return messageContent;
-    }
-
-    public void setMessageContent(String messageContent) {
         this.messageContent = messageContent;
-    }
-
-    public LocalDateTime getTimestamp() {
-        return timestamp;
-    }
-
-    public void setTimestamp(LocalDateTime timestamp) {
-        this.timestamp = timestamp;
+        this.recipients = recipients;
+        this.chat = chat;
+        this.sender = sender;
     }
 }

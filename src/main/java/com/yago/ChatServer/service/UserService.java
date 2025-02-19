@@ -1,6 +1,8 @@
 package com.yago.ChatServer.service;
 
+import com.yago.ChatServer.dto.CreateChatDTO;
 import com.yago.ChatServer.dto.CredentialsDTO;
+import com.yago.ChatServer.model.Chat;
 import com.yago.ChatServer.model.User;
 import com.yago.ChatServer.model.UserPassword;
 import com.yago.ChatServer.repository.UserPasswordRepository;

@@ -1,9 +1,16 @@
 package com.yago.ChatServer.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.Set;
 
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 public class Chat {
     @Id
@@ -14,44 +21,13 @@ public class Chat {
     private boolean isGroupChat;
 
     @ManyToMany
-    @JoinTable(name = "users_chats", joinColumns = @JoinColumn(name = "chat_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
+    @JoinTable(name = "users_chats", joinColumns = @JoinColumn(name = "chatId"), inverseJoinColumns = @JoinColumn(name = "userId"))
+    @JsonManagedReference
     private Set<User> participants;
 
     public Chat(String name, boolean isGroupChat, Set<User> participants) {
         this.name = name;
         this.isGroupChat = isGroupChat;
-        this.participants = participants;
-    }
-
-    public long getChatId() {
-        return chatId;
-    }
-
-    public void setChatId(long chatId) {
-        this.chatId = chatId;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public boolean isGroupChat() {
-        return isGroupChat;
-    }
-
-    public void setGroupChat(boolean groupChat) {
-        isGroupChat = groupChat;
-    }
-
-    public Set<User> getParticipants() {
-        return participants;
-    }
-
-    public void setParticipants(Set<User> participants) {
         this.participants = participants;
     }
 }

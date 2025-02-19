@@ -1,8 +1,7 @@
 package com.yago.ChatServer.controller;
 
-import com.yago.ChatServer.dto.CreateGroupDTO;
+import com.yago.ChatServer.dto.CreateChatDTO;
 import com.yago.ChatServer.model.ApiResponse;
-import com.yago.ChatServer.model.Chat;
 import com.yago.ChatServer.repository.UserRepository;
 import com.yago.ChatServer.service.ChatService;
 import com.yago.ChatServer.websocket.ChatWebSocketHandler;
@@ -29,9 +28,9 @@ public class GroupsController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<ApiResponse> createGroupChat(@RequestBody CreateGroupDTO cgr) {
+    public ResponseEntity<ApiResponse> createGroupChat(@RequestBody CreateChatDTO ccd) {
         try {
-            chatService.createChat(new Chat(cgr.getGroupName(), true, cgr.getParticipants()));
+            chatService.createChat(ccd);
         } catch (Exception e) {
             System.err.println("Error creating group chat: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.CONFLICT).body(new ApiResponse(e.getMessage()));
