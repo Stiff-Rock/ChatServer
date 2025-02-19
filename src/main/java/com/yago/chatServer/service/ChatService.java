@@ -30,7 +30,7 @@ public class ChatService {
             User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
             users.add(user);
         }
-        Chat chat = new Chat(cct.getChatName(), cct.isGroupChat(), users);
+        Chat chat = new Chat(cct.getChatName(), cct.getGroupChat(), users);
         System.out.println("CREATING CHAT: " + chat);
         chatRepository.save(chat);
         chatWebSocketHandler.broadcastNewChat(chat);
