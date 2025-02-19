@@ -17,7 +17,7 @@ public class Message {
 
     @ManyToOne
     @JoinColumn(name = "chat_id")
-    private Chat chat;
+    private GroupChat groupChat;
 
     private String messageContent;
 
@@ -26,10 +26,10 @@ public class Message {
     public Message() {
     }
 
-    public Message(LocalDateTime timestamp, String messageContent, Chat chat, User sender) {
+    public Message(LocalDateTime timestamp, String messageContent, GroupChat groupChat, User sender) {
         this.timestamp = timestamp;
         this.messageContent = messageContent;
-        this.chat = chat;
+        this.groupChat = groupChat;
         this.sender = sender;
     }
 
@@ -49,12 +49,12 @@ public class Message {
         this.sender = sender;
     }
 
-    public Chat getChat() {
-        return chat;
+    public GroupChat getChat() {
+        return groupChat;
     }
 
-    public void setChat(Chat chat) {
-        this.chat = chat;
+    public void setChat(GroupChat groupChat) {
+        this.groupChat = groupChat;
     }
 
     public String getMessageContent() {
@@ -78,7 +78,7 @@ public class Message {
         return "Message{" +
                 "id=" + id +
                 ", sender=" + sender +
-                ", chat=" + chat +
+                ", chat=" + groupChat +
                 ", messageContent='" + messageContent + '\'' +
                 ", timestamp=" + timestamp +
                 '}';

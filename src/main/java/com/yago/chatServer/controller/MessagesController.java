@@ -1,7 +1,7 @@
 package com.yago.chatServer.controller;
 
 import com.yago.chatServer.dto.MessageDTO;
-import com.yago.chatServer.model.Chat;
+import com.yago.chatServer.model.GroupChat;
 import com.yago.chatServer.model.Message;
 import com.yago.chatServer.model.User;
 import com.yago.chatServer.repository.ChatRepository;
@@ -40,18 +40,18 @@ public class MessagesController {
         System.out.println("CREATING MESSAGE: " + messageDTO);
 
         Long chatId = messageDTO.getChatId();
-        Chat chat = chatRepository.findById(chatId).orElseThrow(() -> new RuntimeException("Chat not found with ID: " + chatId));
+        GroupChat groupChat = chatRepository.findById(chatId).orElseThrow(() -> new RuntimeException("Chat not found with ID: " + chatId));
 
         Long senderId = messageDTO.getSenderId();
         User user = userRepository.findById(senderId).orElseThrow(() -> new RuntimeException("User not found with ID: " + senderId));
 
-        Message message = new Message(LocalDateTime.now(), messageDTO.getMessageContent(), chat, user);
+        Message message = new Message(LocalDateTime.now(), messageDTO.getMessageContent(), groupChat, user);
         messageService.saveMessage(message);
 
         System.out.println("Mensaje enviado por " + user.getUsername() + ":\n - " + messageDTO.getMessageContent());
 
         //TODO: HANDLE WEBSOCKET DISCONNECTIONS
-        if (chat.isGroupChat()) webSocketHandler.broadcastMessageToChatGroup(message);
+        if (groupChat.isGroupChat()) webSocketHandler.broadcastMessageToChatGroup(message);
         else webSocketHandler.broadcastMessageToPrivateChat(message);
 
         return message;

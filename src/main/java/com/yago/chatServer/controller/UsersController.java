@@ -2,7 +2,7 @@ package com.yago.chatServer.controller;
 
 import com.yago.chatServer.dto.ApiResponse;
 import com.yago.chatServer.dto.CredentialsDTO;
-import com.yago.chatServer.model.Chat;
+import com.yago.chatServer.model.GroupChat;
 import com.yago.chatServer.model.User;
 import com.yago.chatServer.repository.ChatRepository;
 import com.yago.chatServer.repository.UserRepository;
@@ -90,7 +90,7 @@ public class UsersController {
     }
 
     @GetMapping("/user/{userId}/chats")
-    public List<Chat> getUserChats(@PathVariable Long userId) {
+    public List<GroupChat> getUserChats(@PathVariable Long userId) {
         return chatRepository.findByParticipants_Id(userId);
     }
 

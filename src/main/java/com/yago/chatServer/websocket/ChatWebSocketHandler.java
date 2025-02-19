@@ -1,6 +1,6 @@
 package com.yago.chatServer.websocket;
 
-import com.yago.chatServer.model.Chat;
+import com.yago.chatServer.model.GroupChat;
 import com.yago.chatServer.model.Message;
 import com.yago.chatServer.model.User;
 import org.springframework.lang.NonNull;
@@ -54,9 +54,9 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
 
     public void broadcastMessageToChatGroup(Message message) {
         System.out.println("BROADCASTING MESSAGE TO GROUP");
-        Chat chat = message.getChat();
+        GroupChat groupChat = message.getChat();
         String chatId = String.valueOf(message.getId());
-        for (User recipient : chat.getParticipants()) {
+        for (User recipient : groupChat.getParticipants()) {
             String username = recipient.getUsername();
             WebSocketSession session = userSessions.get(username);
             try {
@@ -97,9 +97,9 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
         }
     }
 
-    public void broadcastNewChat(Chat chat) {
-        long chatId = chat.getChatId();
-        for (User recipient : chat.getParticipants()) {
+    public void broadcastNewChat(GroupChat groupChat) {
+        long chatId = groupChat.getChatId();
+        for (User recipient : groupChat.getParticipants()) {
             String username = recipient.getUsername();
             WebSocketSession session = userSessions.get(username);
             try {

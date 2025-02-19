@@ -17,7 +17,7 @@ public class User {
 
     @ManyToMany(mappedBy = "participants")
     @JsonBackReference
-    private Set<Chat> chats;
+    private Set<GroupChat> groupChats;
 
     public User() {
     }
@@ -42,12 +42,12 @@ public class User {
         this.username = username;
     }
 
-    public Set<Chat> getChats() {
-        return chats;
+    public Set<GroupChat> getChats() {
+        return groupChats;
     }
 
-    public void setChats(Set<Chat> chats) {
-        this.chats = chats;
+    public void setChats(Set<GroupChat> groupChats) {
+        this.groupChats = groupChats;
     }
 
     @Override
