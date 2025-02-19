@@ -1,5 +1,7 @@
 package com.yago.ChatServer.websocket;
 
+import com.yago.ChatServer.model.Message;
+import com.yago.ChatServer.model.User;
 import org.springframework.lang.NonNull;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
@@ -45,16 +47,20 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
         }
     }
 
-    public void broadcastMessageToChatGroup(String message) {
-        System.out.println("MESSAGE TO GROUP: " + message);
+    public void broadcastMessageToChatGroup(Message message) {
+        for (User reciever : message.getRecipients()) {
+
+        }
     }
 
-    public void broadcastMessageToPrivateChat(String message, String recipient) {
-        WebSocketSession session = userSessions.get(recipient);
+    public void broadcastMessageToPrivateChat(Message message) {
+        User recipient = message.getRecipients().iterator().next();
+
+        WebSocketSession session = userSessions.get(recipient.getUsername());
 
         if (session != null && session.isOpen()) {
             try {
-                session.sendMessage(new TextMessage(message));
+                session.sendMessage(new TextMessage(String.valueOf(message.getId())));
             } catch (IOException e) {
                 System.err.println("Error broadcasting message \"" + message + "\": " + e.getMessage());
             }

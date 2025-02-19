@@ -1,6 +1,10 @@
 package com.yago.ChatServer.controller;
 
+import com.yago.ChatServer.model.Chat;
 import com.yago.ChatServer.model.Message;
+import com.yago.ChatServer.repository.ChatRepository;
+import com.yago.ChatServer.repository.MessageRepository;
+import com.yago.ChatServer.service.MessageService;
 import com.yago.ChatServer.websocket.ChatWebSocketHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -12,43 +16,57 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/messages")
 public class MessagesController {
-    private final List<Message> mensajes = new ArrayList<>();
-
     private final ChatWebSocketHandler webSocketHandler;
+    private final MessageService messageService;
+    private final MessageRepository messageRepository;
+    private final ChatRepository chatRepository;
 
     @Autowired
-    public MessagesController(ChatWebSocketHandler webSocketHandler) {
+    public MessagesController(ChatWebSocketHandler webSocketHandler, MessageService messageService, MessageRepository messageRepository, ChatRepository chatRepository) {
         this.webSocketHandler = webSocketHandler;
+        this.messageService = messageService;
+        this.messageRepository = messageRepository;
+        this.chatRepository = chatRepository;
     }
 
     @PostMapping("/send")
     public Message sendMessage(@RequestBody Message message) {
-        message.setId((long) (mensajes.size() + 1));
         message.setTimestamp(LocalDateTime.now());
-        mensajes.add(message);
+        messageService.saveMessage(message);
 
         System.out.println("Mensaje enviado por " + message.getSender() + ": " + message.getMessageContent());
 
         boolean isChatGroup = message.getChat().isGroupChat();
 
-        if (isChatGroup)            //TODO: ESTO ESTA FATAL
-            webSocketHandler.broadcastMessageToPrivateChat(message.getMessageContent(), message.getRecipients().toArray()[0].toString());
-        else webSocketHandler.broadcastMessageToChatGroup(message.getMessageContent());
+        if (isChatGroup) webSocketHandler.broadcastMessageToPrivateChat(message);
+        else webSocketHandler.broadcastMessageToChatGroup(message);
 
         return message;
     }
 
-    @GetMapping("/recieve/{recipient}")
-    public List<Message> recieveMessage(@PathVariable String recipient) {
-        List<Message> mensajesDestinatario = new ArrayList<>();
-        for (Message message : mensajes) {
-            //TODO: ESTO ESTA FATAL
-            if (message.getRecipients().toArray()[0].toString().equals(recipient)) {
-                mensajesDestinatario.add(message);
-                //TODO: ESTO ESTA FATAL
-                System.out.println("Mensaje enviado a " + message.getRecipients().toArray()[0].toString() + ": " + message.getMessageContent());
-            }
-        }
-        return mensajesDestinatario;
+    @GetMapping("/recieve/{messageId}")
+    public Message recieveMessage(@PathVariable Long messageId) {
+        return messageRepository.findById(messageId).orElseThrow(() -> new RuntimeException("Message not found with ID: " + messageId));
+    }
+
+    @GetMapping("/history/{chatId}")
+    public List<Message> getMessageHistory(@PathVariable Long chatId) {
+        List<Message> messageHistory = new ArrayList<>();
+
+        return messageHistory;
+    }
+
+    @GetMapping("/private/{userId}")
+    public List<Message> getUserMessages(@PathVariable Long userId) {
+        List<Message> userMessages = new ArrayList<>();
+
+        return userMessages;
+    }
+
+    @GetMapping("/chats/{userId}")
+    public List<Chat> getUserChats(@PathVariable Long userId) {
+        List<Chat> userChats = chatRepository.findByParticipants_Id(userId);
+
+        return userChats;
     }
 }
