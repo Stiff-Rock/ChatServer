@@ -3,7 +3,7 @@ package com.yago.chatServer.model;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
-
+//TODO: CASCADE DELETIONS
 @Entity
 public class Message {
 

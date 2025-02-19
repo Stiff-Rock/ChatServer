@@ -26,8 +26,8 @@ public class ChatsController {
         return chatService.createChat(createChatDTO);
     }
 
-    @GetMapping("/{userId}")
-    public List<Chat> getUserChats(@PathVariable Long userId) {
-        return chatRepository.findByParticipants_Id(userId);
+    @GetMapping("/chat/{chatId}")
+    public Chat getChat(@PathVariable Long chatId) {
+        return chatRepository.findById(chatId).orElseThrow(() -> new RuntimeException("Chat not found with ID: " + chatId));
     }
 }

@@ -15,7 +15,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
+//TODO: CASCADE DELETIONS
 public class ChatWebSocketHandler extends TextWebSocketHandler {
 
     private final HashMap<String, WebSocketSession> userSessions = new HashMap<>();
@@ -45,6 +45,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
     @Override
     public void afterConnectionClosed(@NonNull WebSocketSession session, @NonNull CloseStatus status) {
         String user = sessionUsers.get(session);
+        System.out.println("Connection closed for user <" + user + ">");
         if (user != null) {
             userSessions.remove(user);
             sessionUsers.remove(session);
@@ -52,10 +53,18 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
     }
 
     public void broadcastMessageToChatGroup(Message message) {
-        System.out.println("BROADCASTING MESSAGE TO GORUP");
+        System.out.println("BROADCASTING MESSAGE TO GROUP");
         Chat chat = message.getChat();
-        for (User reciever : chat.getParticipants()) {
-            System.out.println(" - MESSAGE SENT TO: " + reciever.getUsername());
+        String chatId = String.valueOf(message.getId());
+        for (User recipient : chat.getParticipants()) {
+            String username = recipient.getUsername();
+            WebSocketSession session = userSessions.get(username);
+            try {
+                session.sendMessage(new TextMessage(chatId));
+            } catch (IOException e) {
+                System.err.println("Error broadcasting message \"" + message + "\": " + e.getMessage());
+            }
+            System.out.println(" - MESSAGE SENT TO: " + username);
         }
     }
 
@@ -85,6 +94,20 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             } catch (IOException e) {
                 System.err.println("Error broadcasting message \"" + message + "\": " + e.getMessage());
             }
+        }
+    }
+
+    public void broadcastNewChat(Chat chat) {
+        long chatId = chat.getChatId();
+        for (User recipient : chat.getParticipants()) {
+            String username = recipient.getUsername();
+            WebSocketSession session = userSessions.get(username);
+            try {
+                session.sendMessage(new TextMessage("ADD:" + chatId));
+            } catch (IOException e) {
+                System.err.println("Error broadcasting new chat to <" + username + ">: " + e.getMessage());
+            }
+            System.out.println(" - CHAT SENT TO: " + recipient.getUsername());
         }
     }
 

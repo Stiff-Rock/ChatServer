@@ -50,10 +50,8 @@ public class MessagesController {
 
         System.out.println("Mensaje enviado por " + user.getUsername() + ":\n - " + messageDTO.getMessageContent());
 
-        boolean isChatGroup = chat.isGroupChat();
-
-        //TODO: HANDLE WEBSOCKET DISSCONNECTIONSO
-        if (isChatGroup) webSocketHandler.broadcastMessageToChatGroup(message);
+        //TODO: HANDLE WEBSOCKET DISCONNECTIONS
+        if (chat.isGroupChat()) webSocketHandler.broadcastMessageToChatGroup(message);
         else webSocketHandler.broadcastMessageToPrivateChat(message);
 
         return message;

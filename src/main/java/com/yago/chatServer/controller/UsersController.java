@@ -1,8 +1,10 @@
 package com.yago.chatServer.controller;
 
-import com.yago.chatServer.dto.CredentialsDTO;
 import com.yago.chatServer.dto.ApiResponse;
+import com.yago.chatServer.dto.CredentialsDTO;
+import com.yago.chatServer.model.Chat;
 import com.yago.chatServer.model.User;
+import com.yago.chatServer.repository.ChatRepository;
 import com.yago.chatServer.repository.UserRepository;
 import com.yago.chatServer.service.UserService;
 import com.yago.chatServer.websocket.ChatWebSocketHandler;
@@ -17,16 +19,17 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/users")
 public class UsersController {
-    private final UserService userService;
-    private final UserRepository userRepository;
-    private final ChatWebSocketHandler webSocketHandler;
+    @Autowired
+    private UserService userService;
 
     @Autowired
-    public UsersController(UserService userService, UserRepository userRepository, ChatWebSocketHandler webSocketHandler) {
-        this.userService = userService;
-        this.userRepository = userRepository;
-        this.webSocketHandler = webSocketHandler;
-    }
+    private UserRepository userRepository;
+
+    @Autowired
+    private ChatWebSocketHandler webSocketHandler;
+
+    @Autowired
+    private ChatRepository chatRepository;
 
     /**
      * Endpoint para registrar un nuevo usuario con un username único.
@@ -86,7 +89,12 @@ public class UsersController {
         return onlineUsers;
     }
 
-    @GetMapping("/{username}")
+    @GetMapping("/user/{userId}/chats")
+    public List<Chat> getUserChats(@PathVariable Long userId) {
+        return chatRepository.findByParticipants_Id(userId);
+    }
+
+    @GetMapping("/user/{username}")
     public ResponseEntity<User> getUserByUsername(@PathVariable String username) {
         User user = userRepository.findByUsername(username);
 

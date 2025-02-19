@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
 import java.util.Set;
-
+//TODO: CASCADE DELETIONS
 @Entity
 public class Chat {
     @Id
@@ -58,5 +58,14 @@ public class Chat {
 
     public void setParticipants(Set<User> participants) {
         this.participants = participants;
+    }
+
+    @Override
+    public String toString() {
+        return "Chat{" +
+                "chatId=" + chatId +
+                ", name='" + name + '\'' +
+                ", isGroupChat=" + isGroupChat +
+                '}';
     }
 }

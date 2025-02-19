@@ -1,7 +1,7 @@
 package com.yago.chatServer.model;
 
 import jakarta.persistence.*;
-
+//TODO: CASCADE DELETIONS
 @Entity
 public class UserPassword {
     @Id
