@@ -1,17 +1,9 @@
 package com.yago.chatServer.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
 @Entity
 public class Message {
 
@@ -27,19 +19,68 @@ public class Message {
     @JoinColumn(name = "chat_id")
     private Chat chat;
 
-    @ManyToMany
-    @JoinTable(name = "message_recipients", joinColumns = @JoinColumn(name = "message_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
-    private Set<User> recipients = new HashSet<>();
-
     private String messageContent;
 
     private LocalDateTime timestamp;
 
-    public Message(LocalDateTime timestamp, String messageContent, Set<User> recipients, Chat chat, User sender) {
+    public Message() {
+    }
+
+    public Message(LocalDateTime timestamp, String messageContent, Chat chat, User sender) {
         this.timestamp = timestamp;
         this.messageContent = messageContent;
-        this.recipients = recipients;
         this.chat = chat;
         this.sender = sender;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public User getSender() {
+        return sender;
+    }
+
+    public void setSender(User sender) {
+        this.sender = sender;
+    }
+
+    public Chat getChat() {
+        return chat;
+    }
+
+    public void setChat(Chat chat) {
+        this.chat = chat;
+    }
+
+    public String getMessageContent() {
+        return messageContent;
+    }
+
+    public void setMessageContent(String messageContent) {
+        this.messageContent = messageContent;
+    }
+
+    public LocalDateTime getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(LocalDateTime timestamp) {
+        this.timestamp = timestamp;
+    }
+
+    @Override
+    public String toString() {
+        return "Message{" +
+                "id=" + id +
+                ", sender=" + sender +
+                ", chat=" + chat +
+                ", messageContent='" + messageContent + '\'' +
+                ", timestamp=" + timestamp +
+                '}';
     }
 }

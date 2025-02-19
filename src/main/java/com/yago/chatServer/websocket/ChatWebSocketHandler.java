@@ -1,5 +1,6 @@
 package com.yago.chatServer.websocket;
 
+import com.yago.chatServer.model.Chat;
 import com.yago.chatServer.model.Message;
 import com.yago.chatServer.model.User;
 import org.springframework.lang.NonNull;
@@ -31,8 +32,11 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
                 username = query.substring("username=".length());
                 username = URLDecoder.decode(username, StandardCharsets.UTF_8);
                 if (username != null && !userSessions.containsKey(username) && !sessionUsers.containsValue(username)) {
+                    System.out.println("WebSocket connection established with user <" + username + ">");
                     userSessions.put(username, session);
                     sessionUsers.put(session, username);
+                } else {
+                    System.err.println("Error: Connected user does not provide username in query");
                 }
             }
         }
@@ -49,20 +53,34 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
 
     public void broadcastMessageToChatGroup(Message message) {
         System.out.println("BROADCASTING MESSAGE TO GORUP");
-
-        for (User reciever : message.getRecipients()) {
-
+        Chat chat = message.getChat();
+        for (User reciever : chat.getParticipants()) {
+            System.out.println(" - MESSAGE SENT TO: " + reciever.getUsername());
         }
     }
 
     public void broadcastMessageToPrivateChat(Message message) {
         System.out.println("BROADCASTING MESSAGE TO PRIVATE CHAT");
-        User recipient = message.getRecipients().iterator().next();
+
+        System.out.println("SENDER: " + message.getSender().getUsername());
+
+
+        User recipient = null;
+        for (User user : message.getChat().getParticipants()) {
+            if (!user.getUsername().equals(message.getSender().getUsername())) recipient = user;
+        }
+
+        if (recipient == null) {
+            System.err.println("COULD NOT FIND USER RECIPIENT");
+            return;
+        }
+
+        System.out.println("RECIPIENT: " + recipient.getUsername());
 
         WebSocketSession session = userSessions.get(recipient.getUsername());
-
         if (session != null && session.isOpen()) {
             try {
+                System.out.println("WEBSOCKET MESSAGE SENT: " + message.getId());
                 session.sendMessage(new TextMessage(String.valueOf(message.getId())));
             } catch (IOException e) {
                 System.err.println("Error broadcasting message \"" + message + "\": " + e.getMessage());

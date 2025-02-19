@@ -1,8 +1,12 @@
 package com.yago.chatServer.controller;
 
 import com.yago.chatServer.dto.MessageDTO;
+import com.yago.chatServer.model.Chat;
 import com.yago.chatServer.model.Message;
+import com.yago.chatServer.model.User;
+import com.yago.chatServer.repository.ChatRepository;
 import com.yago.chatServer.repository.MessageRepository;
+import com.yago.chatServer.repository.UserRepository;
 import com.yago.chatServer.service.MessageService;
 import com.yago.chatServer.websocket.ChatWebSocketHandler;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,29 +19,42 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/messages")
 public class MessagesController {
-    private final ChatWebSocketHandler webSocketHandler;
-    private final MessageService messageService;
-    private final MessageRepository messageRepository;
-
+    @Autowired
+    private ChatWebSocketHandler webSocketHandler;
 
     @Autowired
-    public MessagesController(ChatWebSocketHandler webSocketHandler, MessageService messageService, MessageRepository messageRepository) {
-        this.webSocketHandler = webSocketHandler;
-        this.messageService = messageService;
-        this.messageRepository = messageRepository;
-    }
+    private MessageService messageService;
+
+    @Autowired
+    private MessageRepository messageRepository;
+
+    @Autowired
+    private ChatRepository chatRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
 
     @PostMapping("/send")
     public Message sendMessage(@RequestBody MessageDTO messageDTO) {
-        Message message = new Message(LocalDateTime.now(), messageDTO.getMessageContent(), messageDTO.getChat().getParticipants(), messageDTO.getChat(), messageDTO.getSender());
+        System.out.println("CREATING MESSAGE: " + messageDTO);
+
+        Long chatId = messageDTO.getChatId();
+        Chat chat = chatRepository.findById(chatId).orElseThrow(() -> new RuntimeException("Chat not found with ID: " + chatId));
+
+        Long senderId = messageDTO.getSenderId();
+        User user = userRepository.findById(senderId).orElseThrow(() -> new RuntimeException("User not found with ID: " + senderId));
+
+        Message message = new Message(LocalDateTime.now(), messageDTO.getMessageContent(), chat, user);
         messageService.saveMessage(message);
 
-        System.out.println("Mensaje enviado por " + messageDTO.getSender() + ": " + messageDTO.getMessageContent());
+        System.out.println("Mensaje enviado por " + user.getUsername() + ":\n - " + messageDTO.getMessageContent());
 
-        boolean isChatGroup = messageDTO.getChat().isGroupChat();
+        boolean isChatGroup = chat.isGroupChat();
 
-        if (isChatGroup) webSocketHandler.broadcastMessageToPrivateChat(message);
-        else webSocketHandler.broadcastMessageToChatGroup(message);
+        //TODO: HANDLE WEBSOCKET DISSCONNECTIONSO
+        if (isChatGroup) webSocketHandler.broadcastMessageToChatGroup(message);
+        else webSocketHandler.broadcastMessageToPrivateChat(message);
 
         return message;
     }

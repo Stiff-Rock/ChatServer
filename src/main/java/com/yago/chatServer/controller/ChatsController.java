@@ -23,7 +23,6 @@ public class ChatsController {
 
     @PostMapping("/create")
     public Chat addContact(@RequestBody CreateChatDTO createChatDTO) {
-        System.out.println("CREATING CHAT: " + createChatDTO.toString());
         return chatService.createChat(createChatDTO);
     }
 

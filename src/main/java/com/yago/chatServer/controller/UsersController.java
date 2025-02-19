@@ -1,7 +1,7 @@
 package com.yago.chatServer.controller;
 
 import com.yago.chatServer.dto.CredentialsDTO;
-import com.yago.chatServer.model.ApiResponse;
+import com.yago.chatServer.dto.ApiResponse;
 import com.yago.chatServer.model.User;
 import com.yago.chatServer.repository.UserRepository;
 import com.yago.chatServer.service.UserService;
