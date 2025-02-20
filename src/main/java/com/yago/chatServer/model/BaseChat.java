@@ -10,6 +10,11 @@ import java.util.Set;
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
 @Table(name = "chats")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = PrivateChat.class, name = "PrivateChat"),
+        @JsonSubTypes.Type(value = GroupChat.class, name = "GroupChat")
+})
 public abstract class BaseChat {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
