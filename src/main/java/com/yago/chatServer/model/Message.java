@@ -12,6 +12,7 @@ public class Message {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    //TODO: ¿PORQUE TODO EL OBJETO Y NO SOLO SU ID?
     @ManyToOne
     @JoinColumn(name = "sender_id")
     private User sender;

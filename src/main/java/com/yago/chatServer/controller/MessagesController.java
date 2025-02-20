@@ -60,10 +60,11 @@ public class MessagesController {
         return messageRepository.findById(messageId).orElseThrow(() -> new RuntimeException("Message not found with ID: " + messageId));
     }
 
+    //TODO: ESTO NO TIENE SENTIDOOOOOOOOOOOO mira los otros todos en la clase mensaje y chat
     @GetMapping("/history/{chatId}")
     public List<Message> getMessageHistory(@PathVariable Long chatId) {
-        List<Message> messageHistory = new ArrayList<>();
-
+        List<Message> messageHistory = messageRepository.findBychat_id(chatId);
+        if (messageHistory == null) return null;
         return messageHistory;
     }
 

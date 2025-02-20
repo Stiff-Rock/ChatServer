@@ -10,6 +10,7 @@ import java.util.Set;
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
 @Table(name = "chats")
+
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = PrivateChat.class, name = "PrivateChat"),
@@ -28,6 +29,7 @@ public abstract class BaseChat {
     )
     @JsonManagedReference
     private Set<User> participants;
+    //TODO: TENDRIA MAS SENTIDO QUE TUVIERA UNA LISTA DE MENSAJES
 
     public BaseChat() {
     }
