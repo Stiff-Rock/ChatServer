@@ -2,9 +2,10 @@ package com.yago.chatServer.controller;
 
 import com.yago.chatServer.dto.ApiResponse;
 import com.yago.chatServer.dto.CredentialsDTO;
+import com.yago.chatServer.model.BaseChat;
 import com.yago.chatServer.model.GroupChat;
 import com.yago.chatServer.model.User;
-import com.yago.chatServer.repository.ChatRepository;
+import com.yago.chatServer.repository.BaseChatRepository;
 import com.yago.chatServer.repository.UserRepository;
 import com.yago.chatServer.service.UserService;
 import com.yago.chatServer.websocket.ChatWebSocketHandler;
@@ -29,7 +30,7 @@ public class UsersController {
     private ChatWebSocketHandler webSocketHandler;
 
     @Autowired
-    private ChatRepository chatRepository;
+    private BaseChatRepository baseChatRepository;
 
     /**
      * Endpoint para registrar un nuevo usuario con un username único.
@@ -90,8 +91,8 @@ public class UsersController {
     }
 
     @GetMapping("/user/{userId}/chats")
-    public List<GroupChat> getUserChats(@PathVariable Long userId) {
-        return chatRepository.findByParticipants_Id(userId);
+    public List<BaseChat> getUserChats(@PathVariable Long userId) {
+        return baseChatRepository.findByParticipants_Id(userId);
     }
 
     @GetMapping("/user/{username}")

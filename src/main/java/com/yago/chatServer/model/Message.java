@@ -3,6 +3,7 @@ package com.yago.chatServer.model;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
+
 //TODO: CASCADE DELETIONS
 @Entity
 public class Message {
@@ -17,7 +18,7 @@ public class Message {
 
     @ManyToOne
     @JoinColumn(name = "chat_id")
-    private GroupChat groupChat;
+    private BaseChat chat;
 
     private String messageContent;
 
@@ -26,10 +27,10 @@ public class Message {
     public Message() {
     }
 
-    public Message(LocalDateTime timestamp, String messageContent, GroupChat groupChat, User sender) {
+    public Message(LocalDateTime timestamp, String messageContent, BaseChat chat, User sender) {
         this.timestamp = timestamp;
         this.messageContent = messageContent;
-        this.groupChat = groupChat;
+        this.chat = chat;
         this.sender = sender;
     }
 
@@ -49,12 +50,12 @@ public class Message {
         this.sender = sender;
     }
 
-    public GroupChat getChat() {
-        return groupChat;
+    public BaseChat getChat() {
+        return chat;
     }
 
-    public void setChat(GroupChat groupChat) {
-        this.groupChat = groupChat;
+    public void setChat(BaseChat groupChat) {
+        this.chat = groupChat;
     }
 
     public String getMessageContent() {
@@ -78,7 +79,7 @@ public class Message {
         return "Message{" +
                 "id=" + id +
                 ", sender=" + sender +
-                ", chat=" + groupChat +
+                ", chat=" + chat +
                 ", messageContent='" + messageContent + '\'' +
                 ", timestamp=" + timestamp +
                 '}';

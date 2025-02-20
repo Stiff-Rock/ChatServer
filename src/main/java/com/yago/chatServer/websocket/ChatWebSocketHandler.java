@@ -1,5 +1,6 @@
 package com.yago.chatServer.websocket;
 
+import com.yago.chatServer.model.BaseChat;
 import com.yago.chatServer.model.GroupChat;
 import com.yago.chatServer.model.Message;
 import com.yago.chatServer.model.User;
@@ -15,6 +16,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
 //TODO: CASCADE DELETIONS
 public class ChatWebSocketHandler extends TextWebSocketHandler {
 
@@ -54,7 +56,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
 
     public void broadcastMessageToChatGroup(Message message) {
         System.out.println("BROADCASTING MESSAGE TO GROUP");
-        GroupChat groupChat = message.getChat();
+        GroupChat groupChat = (GroupChat) message.getChat();
         String chatId = String.valueOf(message.getId());
         for (User recipient : groupChat.getParticipants()) {
             String username = recipient.getUsername();
@@ -73,7 +75,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
 
         System.out.println("SENDER: " + message.getSender().getUsername());
 
-
+        //TODO REVISE
         User recipient = null;
         for (User user : message.getChat().getParticipants()) {
             if (!user.getUsername().equals(message.getSender().getUsername())) recipient = user;
@@ -89,7 +91,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
         WebSocketSession session = userSessions.get(recipient.getUsername());
         if (session != null && session.isOpen()) {
             try {
-                System.out.println("WEBSOCKET MESSAGE SENT: " + message.getId());
+                System.out.println("WEBSOCKET MESSAGE SENT");
                 session.sendMessage(new TextMessage(String.valueOf(message.getId())));
             } catch (IOException e) {
                 System.err.println("Error broadcasting message \"" + message + "\": " + e.getMessage());
@@ -97,11 +99,19 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
         }
     }
 
-    public void broadcastNewChat(GroupChat groupChat) {
-        long chatId = groupChat.getChatId();
-        for (User recipient : groupChat.getParticipants()) {
+    public void broadcastNewChat(BaseChat chat, Long creatorId) {
+        long chatId = chat.getChatId();
+        for (User recipient : chat.getParticipants()) {
+            if (recipient.getId().equals(creatorId)) continue;
+
             String username = recipient.getUsername();
             WebSocketSession session = userSessions.get(username);
+
+            if (session == null) {
+                System.err.println("Could not broadcast to session of user: " + username + ": Session is null");
+                return;
+            }
+
             try {
                 session.sendMessage(new TextMessage("ADD:" + chatId));
             } catch (IOException e) {

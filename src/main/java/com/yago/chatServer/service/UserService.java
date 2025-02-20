@@ -49,6 +49,11 @@ public class UserService {
      */
     public User loginUser(CredentialsDTO credentials) {
         User existingUser = userRepository.findByUsername(credentials.getUsername());
+        if (existingUser == null) {
+            System.out.println("User not registered");
+            return null;
+        }
+
         UserPassword usrPwd = userPasswordRepository.findByUserUsername(existingUser.getUsername());
 
         if (!BCrypt.checkpw(credentials.getPassword(), usrPwd.getPassword())) return null;

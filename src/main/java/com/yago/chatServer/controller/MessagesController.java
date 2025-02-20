@@ -1,10 +1,8 @@
 package com.yago.chatServer.controller;
 
 import com.yago.chatServer.dto.MessageDTO;
-import com.yago.chatServer.model.GroupChat;
-import com.yago.chatServer.model.Message;
-import com.yago.chatServer.model.User;
-import com.yago.chatServer.repository.ChatRepository;
+import com.yago.chatServer.model.*;
+import com.yago.chatServer.repository.BaseChatRepository;
 import com.yago.chatServer.repository.MessageRepository;
 import com.yago.chatServer.repository.UserRepository;
 import com.yago.chatServer.service.MessageService;
@@ -29,7 +27,7 @@ public class MessagesController {
     private MessageRepository messageRepository;
 
     @Autowired
-    private ChatRepository chatRepository;
+    private BaseChatRepository baseChatRepository;
 
     @Autowired
     private UserRepository userRepository;
@@ -40,19 +38,19 @@ public class MessagesController {
         System.out.println("CREATING MESSAGE: " + messageDTO);
 
         Long chatId = messageDTO.getChatId();
-        GroupChat groupChat = chatRepository.findById(chatId).orElseThrow(() -> new RuntimeException("Chat not found with ID: " + chatId));
+        BaseChat chat = baseChatRepository.findById(chatId).orElseThrow(() -> new RuntimeException("Chat not found with ID: " + chatId));
 
         Long senderId = messageDTO.getSenderId();
         User user = userRepository.findById(senderId).orElseThrow(() -> new RuntimeException("User not found with ID: " + senderId));
 
-        Message message = new Message(LocalDateTime.now(), messageDTO.getMessageContent(), groupChat, user);
+        Message message = new Message(LocalDateTime.now(), messageDTO.getMessageContent(), chat, user);
         messageService.saveMessage(message);
 
         System.out.println("Mensaje enviado por " + user.getUsername() + ":\n - " + messageDTO.getMessageContent());
 
         //TODO: HANDLE WEBSOCKET DISCONNECTIONS
-        if (groupChat.isGroupChat()) webSocketHandler.broadcastMessageToChatGroup(message);
-        else webSocketHandler.broadcastMessageToPrivateChat(message);
+        if (chat instanceof GroupChat) webSocketHandler.broadcastMessageToChatGroup(message);
+        else if (chat instanceof PrivateChat) webSocketHandler.broadcastMessageToPrivateChat(message);
 
         return message;
     }
