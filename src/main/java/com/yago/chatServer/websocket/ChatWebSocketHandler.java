@@ -2,6 +2,7 @@ package com.yago.chatServer.websocket;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.yago.chatServer.model.BaseChat;
 import com.yago.chatServer.model.GroupChat;
 import com.yago.chatServer.model.Message;
@@ -24,6 +25,8 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
 
     private final HashMap<String, WebSocketSession> userSessions = new HashMap<>();
     private final HashMap<WebSocketSession, String> sessionUsers = new HashMap<>();
+
+    private final ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
 
     @Override
     public void afterConnectionEstablished(@NonNull WebSocketSession session) {
@@ -56,6 +59,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
         }
     }
 
+    //TODO BORADCSAST MESSAGE DIRECTLY
     public void broadcastMessageToChatGroup(Message message) {
         System.out.println("BROADCASTING MESSAGE TO GROUP");
         GroupChat groupChat = (GroupChat) message.getChat();
@@ -94,8 +98,8 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
         if (session != null && session.isOpen()) {
             try {
                 System.out.println("WEBSOCKET MESSAGE SENT");
-                String notification = String.valueOf(message.getChat().getId());
-                session.sendMessage(new TextMessage(notification));
+                String jsonMessage = objectMapper.writeValueAsString(message);
+                session.sendMessage(new TextMessage(jsonMessage));
             } catch (IOException e) {
                 System.err.println("Error broadcasting message \"" + message + "\": " + e.getMessage());
             }

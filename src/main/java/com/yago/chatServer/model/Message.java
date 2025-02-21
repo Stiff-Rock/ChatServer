@@ -1,12 +1,12 @@
 package com.yago.chatServer.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-//TODO: CASCADE DELETIONS
 @Entity
 public class Message {
     @Id
@@ -19,10 +19,11 @@ public class Message {
 
     @ManyToOne
     @JoinColumn(name = "chat_id")
-    @JsonBackReference
+    @JsonManagedReference
     private BaseChat chat;
 
     private String messageContent;
+    @JsonFormat(pattern="yyyy-MM-dd'T'HH:mm:ss.SSS")
     private LocalDateTime timestamp;
 
     public Message() {
