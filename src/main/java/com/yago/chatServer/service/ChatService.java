@@ -69,8 +69,7 @@ public class ChatService {
 
         groupChatRepository.save(groupChat);
 
-        //TODO: THIS IS NOT CORRECT, MAYBE ADD ADMIN TO GROUPCHAT
-        chatWebSocketHandler.broadcastNewChat(groupChat, -1L);
+        chatWebSocketHandler.broadcastNewChat(groupChat, gcd.getAdminId());
         return groupChat;
     }
 }

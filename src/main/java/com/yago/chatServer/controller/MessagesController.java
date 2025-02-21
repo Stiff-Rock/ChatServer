@@ -35,8 +35,6 @@ public class MessagesController {
 
     @PostMapping("/send")
     public Message sendMessage(@RequestBody MessageDTO messageDTO) {
-        System.out.println("CREATING MESSAGE: " + messageDTO);
-
         Long chatId = messageDTO.getChatId();
         BaseChat chat = baseChatRepository.findById(chatId).orElseThrow(() -> new RuntimeException("Chat not found with ID: " + chatId));
 

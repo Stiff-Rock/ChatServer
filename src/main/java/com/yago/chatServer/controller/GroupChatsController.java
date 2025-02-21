@@ -26,9 +26,9 @@ public class GroupChatsController {
     private ChatService chatService;
 
     @PostMapping("/create")
-    public ResponseEntity<?> createGroupChat(@RequestBody GroupChatDTO cgd) {
+    public ResponseEntity<?> createGroupChat(@RequestBody GroupChatDTO gcd) {
         try {
-            return ResponseEntity.status(HttpStatus.CREATED).body(chatService.createGroupChat(cgd));
+            return ResponseEntity.status(HttpStatus.CREATED).body(chatService.createGroupChat(gcd));
         } catch (Exception e) {
             System.err.println("Error creating group chat: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.CONFLICT).body(new ApiResponse(e.getMessage()));

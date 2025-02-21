@@ -3,10 +3,7 @@ package com.yago.chatServer.websocket;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.yago.chatServer.model.BaseChat;
-import com.yago.chatServer.model.GroupChat;
-import com.yago.chatServer.model.Message;
-import com.yago.chatServer.model.User;
+import com.yago.chatServer.model.*;
 import org.springframework.lang.NonNull;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
@@ -26,7 +23,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
     private final HashMap<String, WebSocketSession> userSessions = new HashMap<>();
     private final HashMap<WebSocketSession, String> sessionUsers = new HashMap<>();
 
-    private final ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
+    private final ObjectMapper oM = new ObjectMapper().registerModule(new JavaTimeModule());
 
     @Override
     public void afterConnectionEstablished(@NonNull WebSocketSession session) {
@@ -63,12 +60,15 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
     public void broadcastMessageToChatGroup(Message message) {
         System.out.println("BROADCASTING MESSAGE TO GROUP");
         GroupChat groupChat = (GroupChat) message.getChat();
-        String chatId = String.valueOf(message.getId());
-        for (User recipient : groupChat.getParticipants()) {
-            String username = recipient.getUsername();
+        for (User user : groupChat.getParticipants()) {
+            if (user.getId().equals(message.getSender().getId())) continue;
+            String username = user.getUsername();
             WebSocketSession session = userSessions.get(username);
             try {
-                session.sendMessage(new TextMessage(chatId));
+                ObjectNode jsonMessageNode = oM.createObjectNode();
+                jsonMessageNode.put("action", WebSocketAction.MESSAGE_RECEIVED.name());
+                jsonMessageNode.put("content", oM.writeValueAsString(message));
+                session.sendMessage(new TextMessage(jsonMessageNode.toString()));
             } catch (IOException e) {
                 System.err.println("Error broadcasting message \"" + message + "\": " + e.getMessage());
             }
@@ -79,9 +79,6 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
     public void broadcastMessageToPrivateChat(Message message) {
         System.out.println("BROADCASTING MESSAGE TO PRIVATE CHAT");
 
-        System.out.println("SENDER: " + message.getSender().getUsername());
-
-        //TODO REVISE
         User recipient = null;
         for (User user : message.getChat().getParticipants()) {
             if (!user.getUsername().equals(message.getSender().getUsername())) recipient = user;
@@ -92,14 +89,13 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             return;
         }
 
-        System.out.println("RECIPIENT: " + recipient.getUsername());
-
         WebSocketSession session = userSessions.get(recipient.getUsername());
         if (session != null && session.isOpen()) {
             try {
-                System.out.println("WEBSOCKET MESSAGE SENT");
-                String jsonMessage = objectMapper.writeValueAsString(message);
-                session.sendMessage(new TextMessage(jsonMessage));
+                ObjectNode jsonMessageNode = oM.createObjectNode();
+                jsonMessageNode.put("action", WebSocketAction.MESSAGE_RECEIVED.name());
+                jsonMessageNode.put("content", oM.writeValueAsString(message));
+                session.sendMessage(new TextMessage(jsonMessageNode.toString()));
             } catch (IOException e) {
                 System.err.println("Error broadcasting message \"" + message + "\": " + e.getMessage());
             }
@@ -107,7 +103,6 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
     }
 
     public void broadcastNewChat(BaseChat chat, Long creatorId) {
-        long chatId = chat.getId();
         for (User recipient : chat.getParticipants()) {
             if (recipient.getId().equals(creatorId)) continue;
 
@@ -120,12 +115,10 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             }
 
             try {
-                ObjectMapper oM = new ObjectMapper();
-                ObjectNode json = oM.createObjectNode();
-                json.put("action", "ADD");
-                json.put("chatId", chatId);
-                String notification = oM.writeValueAsString(json);
-                session.sendMessage(new TextMessage(notification));
+                ObjectNode jsonMessageNode = oM.createObjectNode();
+                jsonMessageNode.put("action", WebSocketAction.ADD_CONTACT.name());
+                jsonMessageNode.put("content", oM.writeValueAsString(chat));
+                session.sendMessage(new TextMessage(jsonMessageNode.toString()));
             } catch (IOException e) {
                 System.err.println("Error broadcasting new chat to <" + username + ">: " + e.getMessage());
             }
