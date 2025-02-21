@@ -63,7 +63,7 @@ public class MessagesController {
     //TODO: ESTO NO TIENE SENTIDOOOOOOOOOOOO mira los otros todos en la clase mensaje y chat
     @GetMapping("/history/{chatId}")
     public List<Message> getMessageHistory(@PathVariable Long chatId) {
-        List<Message> messageHistory = messageRepository.findBychat_id(chatId);
+        List<Message> messageHistory = messageRepository.findByChatId(chatId);
         if (messageHistory == null) return null;
         return messageHistory;
     }

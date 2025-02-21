@@ -1,6 +1,7 @@
 package com.yago.chatServer.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.util.Set;
@@ -14,6 +15,10 @@ public class User {
 
     @Column(unique = true)
     private String username;
+
+    @JsonIgnore
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private UserPassword userPassword;
 
     @ManyToMany(mappedBy = "participants")
     @JsonBackReference
@@ -42,12 +47,20 @@ public class User {
         this.username = username;
     }
 
+    public UserPassword getUserPassword() {
+        return userPassword;
+    }
+
+    public void setUserPassword(UserPassword userPassword) {
+        this.userPassword = userPassword;
+    }
+
     public Set<BaseChat> getChats() {
         return chats;
     }
 
-    public void setChats(Set<BaseChat> groupChats) {
-        this.chats = groupChats;
+    public void setChats(Set<BaseChat> chats) {
+        this.chats = chats;
     }
 
     @Override

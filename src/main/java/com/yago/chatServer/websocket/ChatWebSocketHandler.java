@@ -1,5 +1,7 @@
 package com.yago.chatServer.websocket;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.yago.chatServer.model.BaseChat;
 import com.yago.chatServer.model.GroupChat;
 import com.yago.chatServer.model.Message;
@@ -92,7 +94,8 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
         if (session != null && session.isOpen()) {
             try {
                 System.out.println("WEBSOCKET MESSAGE SENT");
-                session.sendMessage(new TextMessage(String.valueOf(message.getId())));
+                String notification = String.valueOf(message.getChat().getId());
+                session.sendMessage(new TextMessage(notification));
             } catch (IOException e) {
                 System.err.println("Error broadcasting message \"" + message + "\": " + e.getMessage());
             }
@@ -100,7 +103,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
     }
 
     public void broadcastNewChat(BaseChat chat, Long creatorId) {
-        long chatId = chat.getChatId();
+        long chatId = chat.getId();
         for (User recipient : chat.getParticipants()) {
             if (recipient.getId().equals(creatorId)) continue;
 
@@ -113,7 +116,12 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             }
 
             try {
-                session.sendMessage(new TextMessage("ADD:" + chatId));
+                ObjectMapper oM = new ObjectMapper();
+                ObjectNode json = oM.createObjectNode();
+                json.put("action", "ADD");
+                json.put("chatId", chatId);
+                String notification = oM.writeValueAsString(json);
+                session.sendMessage(new TextMessage(notification));
             } catch (IOException e) {
                 System.err.println("Error broadcasting new chat to <" + username + ">: " + e.getMessage());
             }

@@ -2,7 +2,6 @@ package com.yago.chatServer.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.PostLoad;
 import jakarta.persistence.Table;
 
 import java.util.*;
@@ -47,6 +46,6 @@ public class PrivateChat extends BaseChat {
 
     @Override
     public String toString() {
-        return "PrivateChat{" + "chatId=" + getChatId() + ", name='" + name + '\'' + '}';
+        return "PrivateChat{" + "chatId=" + getId() + ", name='" + name + '\'' + '}';
     }
 }

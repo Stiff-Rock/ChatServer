@@ -4,7 +4,10 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import jakarta.persistence.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -19,7 +22,7 @@ import java.util.Set;
 public abstract class BaseChat {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long chatId;
+    private Long id;
 
     @ManyToMany
     @JoinTable(
@@ -28,19 +31,23 @@ public abstract class BaseChat {
             inverseJoinColumns = @JoinColumn(name = "userId")
     )
     @JsonManagedReference
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Set<User> participants;
-    //TODO: TENDRIA MAS SENTIDO QUE TUVIERA UNA LISTA DE MENSAJES
+
+    @OneToMany(mappedBy = "chat", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private List<Message> messages;
 
     public BaseChat() {
     }
 
     // Getters y setters comunes
-    public long getChatId() {
-        return chatId;
+    public Long getId() {
+        return id;
     }
 
-    public void setChatId(long chatId) {
-        this.chatId = chatId;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public Set<User> getParticipants() {
@@ -49,5 +56,13 @@ public abstract class BaseChat {
 
     public void setParticipants(Set<User> participants) {
         this.participants = participants;
+    }
+
+    public List<Message> getMessages() {
+        return messages;
+    }
+
+    public void setMessages(List<Message> messages) {
+        this.messages = messages;
     }
 }
