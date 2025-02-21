@@ -92,6 +92,7 @@ public class UsersController {
 
     @GetMapping("/user/{userId}/chats")
     public List<BaseChat> getUserChats(@PathVariable Long userId) {
+        //TODO: PUT THE NAME OF THE OPPOSIT USER IN THE ANME OF THE CHAT
         return baseChatRepository.findByParticipants_Id(userId);
     }
 

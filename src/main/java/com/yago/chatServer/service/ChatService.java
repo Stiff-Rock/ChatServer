@@ -51,7 +51,7 @@ public class ChatService {
         System.out.println("CREATING PRIVATE CHAT: " + chat);
 
         privateChatRepository.save(chat);
-
+        //TODO: PUT THE NAME OF THE OPPOSIT USER IN THE ANME OF THE CHAT
         chatWebSocketHandler.broadcastNewChat(chat, userId1);
         return chat;
     }
