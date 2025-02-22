@@ -11,16 +11,21 @@ import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry
 public class WebSocketConfig implements WebSocketConfigurer {
 
     @Bean
-    public ChatWebSocketHandler chatWebSocketHandler() {
-        return new ChatWebSocketHandler();
+    public AppWebSocketHandler appWebSocketHandler() {
+        return new AppWebSocketHandler();
+    }
+
+    @Bean
+    public GroupChatWebSocketHandler GroupChatWebSocketHandler() {
+        return new GroupChatWebSocketHandler();
     }
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        registry.addHandler(chatWebSocketHandler(), "/chat")
+        registry.addHandler(appWebSocketHandler(), "/app")
                 .setAllowedOrigins("*");
 
-        registry.addHandler(chatWebSocketHandler(), "/group/{groupId}")
+        registry.addHandler(GroupChatWebSocketHandler(), "/chat/group/{groupId}")
                 .setAllowedOrigins("*");
     }
 }

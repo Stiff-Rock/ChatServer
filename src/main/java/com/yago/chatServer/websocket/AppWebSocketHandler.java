@@ -16,7 +16,6 @@ import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -24,8 +23,7 @@ import static com.yago.chatServer.model.WebSocketAction.*;
 import static com.yago.chatServer.websocket.WebSocketMsgManager.msgToJson;
 import static com.yago.chatServer.websocket.WebSocketMsgManager.oM;
 
-//TODO: CASCADE DELETIONS
-public class ChatWebSocketHandler extends TextWebSocketHandler {
+public class AppWebSocketHandler extends TextWebSocketHandler {
 
     private final HashMap<User, WebSocketSession> userSessions = new HashMap<>();
     private final HashMap<WebSocketSession, User> sessionUsers = new HashMap<>();
@@ -69,11 +67,16 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             broadcastUserStatusChange(user, WebSocketAction.USER_CONNECTED);
         } else {
             System.err.println("Error: User with username <" + username + "> already connected to the WebSocket");
+            WebSocketSession prevSession = userSessions.get(user);
+            sessionUsers.remove(prevSession);
+            userSessions.put(user, session);
+            sessionUsers.put(session, user);
         }
     }
 
     @Override
     public void afterConnectionClosed(@NonNull WebSocketSession session, @NonNull CloseStatus status) {
+        System.out.println("HEYO");
         User user = sessionUsers.get(session);
         if (user != null) {
             userSessions.remove(user);
@@ -81,7 +84,12 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             System.out.println("Connection closed for user <" + user.getUsername() + ">");
             broadcastUserStatusChange(user, USER_DISCONNECTED);
         } else {
-            System.err.println("Error: Could not find user for the disconnected session");
+            StringBuilder err = new StringBuilder("Error: Could not find user for the disconnected session\n");
+            err.append("Currently connected sessions:\n");
+            for (User u : sessionUsers.values()) {
+                err.append(" - ").append(u.getUsername());
+            }
+            System.err.println(err);
         }
     }
 
@@ -125,9 +133,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
                 session.sendMessage(new TextMessage(jsonMessageNode.toString()));
             } catch (IOException e) {
                 System.err.println("Error broadcasting message \"" + message + "\": " + e.getMessage());
-                continue;
             }
-            System.out.println(" - MESSAGE SENT TO: " + user.getUsername());
         }
     }
 
@@ -174,9 +180,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
                 session.sendMessage(new TextMessage(jsonMessageNode.toString()));
             } catch (IOException e) {
                 System.err.println("Error broadcasting new chat to <" + recipient.getUsername() + ">: " + e.getMessage());
-                continue;
             }
-            System.out.println(" - CHAT SENT TO: " + recipient.getUsername());
         }
     }
 
@@ -192,7 +196,6 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
                 session = userSessions.get(recipient);
                 if (session == null) continue;
             } else continue;
-            System.out.println(" - TO: " + recipient.getUsername());
             try {
                 session.sendMessage(new TextMessage(jsonMessageNode.toString()));
             } catch (IOException e) {

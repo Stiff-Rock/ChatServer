@@ -6,7 +6,7 @@ import com.yago.chatServer.repository.BaseChatRepository;
 import com.yago.chatServer.repository.MessageRepository;
 import com.yago.chatServer.repository.UserRepository;
 import com.yago.chatServer.service.MessageService;
-import com.yago.chatServer.websocket.ChatWebSocketHandler;
+import com.yago.chatServer.websocket.AppWebSocketHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,7 +18,7 @@ import java.util.List;
 @RequestMapping("/api/messages")
 public class MessagesController {
     @Autowired
-    private ChatWebSocketHandler webSocketHandler;
+    private AppWebSocketHandler webSocketHandler;
 
     @Autowired
     private MessageService messageService;

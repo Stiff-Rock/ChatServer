@@ -4,7 +4,7 @@ import com.yago.chatServer.dto.ApiResponse;
 import com.yago.chatServer.dto.GroupChatDTO;
 import com.yago.chatServer.repository.UserRepository;
 import com.yago.chatServer.service.ChatService;
-import com.yago.chatServer.websocket.ChatWebSocketHandler;
+import com.yago.chatServer.websocket.AppWebSocketHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/groups")
 public class GroupChatsController {
     @Autowired
-    private ChatWebSocketHandler webSocketHandler;
+    private AppWebSocketHandler webSocketHandler;
 
     @Autowired
     private UserRepository userRepository;

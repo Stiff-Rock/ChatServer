@@ -7,7 +7,7 @@ import com.yago.chatServer.model.User;
 import com.yago.chatServer.repository.BaseChatRepository;
 import com.yago.chatServer.repository.UserRepository;
 import com.yago.chatServer.service.UserService;
-import com.yago.chatServer.websocket.ChatWebSocketHandler;
+import com.yago.chatServer.websocket.AppWebSocketHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,7 +25,7 @@ public class UsersController {
     private UserRepository userRepository;
 
     @Autowired
-    private ChatWebSocketHandler webSocketHandler;
+    private AppWebSocketHandler webSocketHandler;
 
     @Autowired
     private BaseChatRepository baseChatRepository;

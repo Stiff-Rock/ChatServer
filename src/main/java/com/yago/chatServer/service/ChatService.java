@@ -8,7 +8,7 @@ import com.yago.chatServer.model.User;
 import com.yago.chatServer.repository.GroupChatRepository;
 import com.yago.chatServer.repository.PrivateChatRepository;
 import com.yago.chatServer.repository.UserRepository;
-import com.yago.chatServer.websocket.ChatWebSocketHandler;
+import com.yago.chatServer.websocket.AppWebSocketHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -26,7 +26,7 @@ public class ChatService {
     private UserRepository userRepository;
 
     @Autowired
-    private ChatWebSocketHandler chatWebSocketHandler;
+    private AppWebSocketHandler appWebSocketHandler;
 
     public PrivateChat createPrivateChat(PrivateChatDTO pcd) {
         Long userId1 = pcd.getUserId1();
@@ -52,7 +52,7 @@ public class ChatService {
 
         privateChatRepository.save(chat);
         //TODO: PUT THE NAME OF THE OPPOSIT USER IN THE ANME OF THE CHAT
-        chatWebSocketHandler.broadcastNewChat(chat, userId1);
+        appWebSocketHandler.broadcastNewChat(chat, userId1);
         return chat;
     }
 
@@ -69,7 +69,7 @@ public class ChatService {
 
         groupChatRepository.save(groupChat);
 
-        chatWebSocketHandler.broadcastNewChat(groupChat, gcd.getAdminId());
+        appWebSocketHandler.broadcastNewChat(groupChat, gcd.getAdminId());
         return groupChat;
     }
 }
