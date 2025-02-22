@@ -25,7 +25,7 @@ public abstract class BaseChat {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "users_chats",
             joinColumns = @JoinColumn(name = "chatId"),

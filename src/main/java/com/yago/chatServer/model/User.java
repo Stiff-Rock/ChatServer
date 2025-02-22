@@ -6,7 +6,7 @@ import jakarta.persistence.*;
 
 import java.util.Objects;
 import java.util.Set;
-//TODO: CASCADE DELETIONS
+
 @Entity
 public class User {
 
@@ -21,7 +21,7 @@ public class User {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private UserPassword userPassword;
 
-    @ManyToMany(mappedBy = "participants")
+    @ManyToMany(mappedBy = "participants", fetch = FetchType.EAGER)
     @JsonBackReference
     private Set<BaseChat> chats;
 

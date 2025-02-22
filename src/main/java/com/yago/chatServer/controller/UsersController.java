@@ -3,7 +3,6 @@ package com.yago.chatServer.controller;
 import com.yago.chatServer.dto.ApiResponse;
 import com.yago.chatServer.dto.CredentialsDTO;
 import com.yago.chatServer.model.BaseChat;
-import com.yago.chatServer.model.GroupChat;
 import com.yago.chatServer.model.User;
 import com.yago.chatServer.repository.BaseChatRepository;
 import com.yago.chatServer.repository.UserRepository;
@@ -14,7 +13,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -79,15 +77,7 @@ public class UsersController {
      */
     @GetMapping("/online")
     public List<User> getOnlineUsers() {
-        List<User> onlineUsers = new ArrayList<>();
-        List<String> onlineUsernames = webSocketHandler.getOnlineUsers();
-
-        for (String username : onlineUsernames) {
-            User user = userRepository.findByUsername(username);
-            if (user != null) onlineUsers.add(user);
-        }
-
-        return onlineUsers;
+        return webSocketHandler.getOnlineUsers();
     }
 
     @GetMapping("/user/{userId}/chats")
