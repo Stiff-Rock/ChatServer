@@ -169,6 +169,7 @@ public class AppWebSocketHandler extends TextWebSocketHandler {
 
         for (User recipient : chat.getParticipants()) {
             if (recipient.getId().equals(creatorId)) continue;
+            if (!userSessions.containsKey(recipient)) continue;
 
             WebSocketSession session = userSessions.get(recipient);
             if (session == null) {
