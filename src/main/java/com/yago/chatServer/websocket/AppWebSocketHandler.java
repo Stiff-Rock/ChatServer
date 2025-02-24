@@ -76,7 +76,6 @@ public class AppWebSocketHandler extends TextWebSocketHandler {
 
     @Override
     public void afterConnectionClosed(@NonNull WebSocketSession session, @NonNull CloseStatus status) {
-        System.out.println("HEYO");
         User user = sessionUsers.get(session);
         if (user != null) {
             userSessions.remove(user);
@@ -102,6 +101,9 @@ public class AppWebSocketHandler extends TextWebSocketHandler {
         if (action.equals(GET_CONTACTS_ONLINE_STATUS)) {
             User user = oM.treeToValue(contentNode, User.class);
             getUserContactsStatus(user, session);
+        } else if (action.equals(GET_USER_ONLINE_STATUS)) {
+            User user = oM.treeToValue(contentNode, User.class);
+            getUserOnlineStatus(user, session);
         }
     }
 
@@ -116,6 +118,18 @@ public class AppWebSocketHandler extends TextWebSocketHandler {
             } catch (IOException e) {
                 System.err.println("Error broadcasting user status to user <" + user.getUsername() + ">: " + e.getMessage());
             }
+        }
+    }
+
+    private void getUserOnlineStatus(User user, WebSocketSession session) {
+        WebSocketAction status = userSessions.containsKey(user) ? USER_CONNECTED : USER_DISCONNECTED;
+        ObjectNode jsonMessageNode = msgToJson(status, user);
+        if (jsonMessageNode == null) return;
+        try {
+            session.sendMessage(new TextMessage(jsonMessageNode.toString()));
+        } catch (IOException e) {
+            String username = sessionUsers.get(session).getUsername();
+            System.err.println("Error broadcasting user status to user <" + username + ">: " + e.getMessage());
         }
     }
 
