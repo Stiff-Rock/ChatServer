@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -60,15 +59,11 @@ public class MessagesController {
 
     @GetMapping("/history/{chatId}")
     public List<Message> getMessageHistory(@PathVariable Long chatId) {
-        List<Message> messageHistory = messageRepository.findByChatId(chatId);
-        if (messageHistory == null) return null;
-        return messageHistory;
+        return messageRepository.findByChatId(chatId);
     }
 
     @GetMapping("/private/{userId}")
     public List<Message> getUserMessages(@PathVariable Long userId) {
-        List<Message> userMessages = new ArrayList<>();
-
-        return userMessages;
+        return messageRepository.findBySenderId(userId);
     }
 }

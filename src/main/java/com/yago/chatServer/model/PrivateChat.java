@@ -44,6 +44,22 @@ public class PrivateChat extends BaseChat {
         return name;
     }
 
+    //TODO: REVISAR DONE SE PUEDE SUAR EN EL SERVER
+    // Metodo para obetener al usuario del set que no es el actual
+    public User getContact(User currentUser) {
+        User contact = null;
+        for (User user : getParticipants()) {
+            if (!user.equals(currentUser)) contact = user;
+        }
+
+        if (contact == null) {
+            System.err.println("Error: could not find the other participant of private chat");
+            return null;
+        }
+
+        return contact;
+    }
+
     @Override
     public String toString() {
         return "PrivateChat{" + "chatId=" + getId() + ", name='" + name + '\'' + '}';

@@ -207,9 +207,10 @@ public class AppWebSocketHandler extends TextWebSocketHandler {
             WebSocketSession session;
             User recipient;
             if (baseChat instanceof PrivateChat) {
-                recipient = baseChat.getParticipants().stream().filter(u -> !u.equals(user)).findFirst().orElseThrow(() -> new RuntimeException("No other users found in set"));
+                recipient = ((PrivateChat) baseChat).getContact(user);
                 session = userSessions.get(recipient);
                 if (session == null) continue;
+
             } else continue;
             try {
                 session.sendMessage(new TextMessage(jsonMessageNode.toString()));
