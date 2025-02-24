@@ -5,6 +5,7 @@ import com.yago.chatServer.model.BaseChat;
 import com.yago.chatServer.model.PrivateChat;
 import com.yago.chatServer.repository.BaseChatRepository;
 import com.yago.chatServer.service.ChatService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,6 +31,6 @@ public class PrivateChatsController {
     //TODO: QUIZAS SEPARAR POR BASECHAT, PRIVATECHAT Y GROUPCHAT
     @GetMapping("/chat/{chatId}")
     public BaseChat getChat(@PathVariable Long chatId) {
-        return baseChatRepository.findById(chatId).orElseThrow(() -> new RuntimeException("Chat not found with ID: " + chatId));
+        return baseChatRepository.findById(chatId).orElseThrow(() -> new EntityNotFoundException("Chat not found with ID: " + chatId));
     }
 }

@@ -9,6 +9,7 @@ import com.yago.chatServer.repository.GroupChatRepository;
 import com.yago.chatServer.repository.PrivateChatRepository;
 import com.yago.chatServer.repository.UserRepository;
 import com.yago.chatServer.websocket.AppWebSocketHandler;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -44,8 +45,8 @@ public class ChatService {
             return existentChat;
         }
 
-        User user1 = userRepository.findById(userId1).orElseThrow(() -> new RuntimeException("User not found with ID: " + userId1));
-        User user2 = userRepository.findById(userId2).orElseThrow(() -> new RuntimeException("User not found with ID: " + userId2));
+        User user1 = userRepository.findById(userId1).orElseThrow(() -> new EntityNotFoundException("User not found with ID: " + userId1));
+        User user2 = userRepository.findById(userId2).orElseThrow(() -> new EntityNotFoundException("User not found with ID: " + userId2));
 
         PrivateChat chat = new PrivateChat(user1, user2);
         System.out.println("CREATING PRIVATE CHAT: " + chat);
@@ -60,11 +61,16 @@ public class ChatService {
         Set<User> users = new HashSet<>();
 
         for (Long userId : gcd.getParticipants()) {
-            User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
+            User user = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("User not found with ID: " + userId));
             users.add(user);
         }
 
-        GroupChat groupChat = new GroupChat(gcd.getChatName(), users);
+        Long adminId = gcd.getAdminId();
+        User admin = userRepository.findById(adminId).orElseThrow(() -> new EntityNotFoundException("User not found with ID: " + adminId));
+
+        Set<User> admins = new HashSet<>();
+        admins.add(admin);
+        GroupChat groupChat = new GroupChat(gcd.getChatName(), users, admins);
         System.out.println("CREATING GROUP CHAT: " + groupChat);
 
         groupChatRepository.save(groupChat);

@@ -7,6 +7,7 @@ import com.yago.chatServer.model.User;
 import com.yago.chatServer.model.WebSocketAction;
 import com.yago.chatServer.repository.GroupChatRepository;
 import com.yago.chatServer.repository.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
 import org.springframework.web.socket.CloseStatus;
@@ -51,7 +52,7 @@ public class GroupChatWebSocketHandler extends TextWebSocketHandler {
             System.err.println("GroupChatWebSocket Error: group id is null or empty");
             return;
         }
-        groupChat = groupChatRepository.findById(Long.valueOf(groupId)).orElseThrow(() -> new RuntimeException("GroupChat not found with id " + groupId));
+        groupChat = groupChatRepository.findById(Long.valueOf(groupId)).orElseThrow(() -> new EntityNotFoundException("GroupChat not found with id " + groupId));
 
         String query = session.getUri().getQuery();
         if (query == null) {
@@ -95,16 +96,14 @@ public class GroupChatWebSocketHandler extends TextWebSocketHandler {
     }
 
     private void broadcastUserStatusChange(String username, WebSocketAction action, WebSocketSession session) {
-        User sys = new User("SYSTEM");
         String msgText = username + " has ";
 
         switch (action) {
             case USER_CONNECTED_TO_GROUP_CHAT -> msgText += "connected";
             case USER_DISCONNECTED_FROM_GROUP_CHAT -> msgText += "disconnected";
-            case USER_JOINED_GROUP_CHAT -> msgText += "joined the group chat";
-            case USER_LEFT_GROUP_CHAT -> msgText += "left the group chat";
         }
 
+        User sys = userRepository.findByUsername("SYSTEM");
         Message msg = new Message(LocalDateTime.now(), msgText, groupChat, sys);
 
         ObjectNode jsonMessageNode = msgToJson(action, msg);

@@ -141,9 +141,9 @@ public class AppWebSocketHandler extends TextWebSocketHandler {
 
         GroupChat groupChat = (GroupChat) message.getChat();
         for (User user : groupChat.getParticipants()) {
-            if (user.getId().equals(message.getSender().getId())) continue;
+            if (user.equals(message.getSender())) continue;
             WebSocketSession session = userSessions.get(user);
-            try {
+            if (session != null) try {
                 session.sendMessage(new TextMessage(jsonMessageNode.toString()));
             } catch (IOException e) {
                 System.err.println("Error broadcasting message \"" + message + "\": " + e.getMessage());
@@ -178,7 +178,7 @@ public class AppWebSocketHandler extends TextWebSocketHandler {
     }
 
     public void broadcastNewChat(BaseChat chat, Long creatorId) {
-        ObjectNode jsonMessageNode = msgToJson(ADD_CONTACT, chat);
+        ObjectNode jsonMessageNode = msgToJson(ADD_CHAT, chat);
         if (jsonMessageNode == null) return;
 
         for (User recipient : chat.getParticipants()) {
@@ -199,6 +199,58 @@ public class AppWebSocketHandler extends TextWebSocketHandler {
         }
     }
 
+    //TODO: DELETE CONTACT
+    public void broadcastDeleteContact(BaseChat chat, Long creatorId) {
+        ObjectNode jsonMessageNode = msgToJson(DELETE_CONTACT, chat);
+        if (jsonMessageNode == null) return;
+
+        for (User recipient : chat.getParticipants()) {
+            if (recipient.getId().equals(creatorId)) continue;
+            if (!userSessions.containsKey(recipient)) continue;
+
+            WebSocketSession session = userSessions.get(recipient);
+            if (session == null) {
+                System.err.println("Could not broadcast to session of user: " + recipient.getUsername() + ": Session is null");
+                return;
+            }
+
+            try {
+                session.sendMessage(new TextMessage(jsonMessageNode.toString()));
+            } catch (IOException e) {
+                System.err.println("Error broadcasting new chat to <" + recipient.getUsername() + ">: " + e.getMessage());
+            }
+        }
+    }
+
+    public void broadcastRemovedFromGroup(GroupChat chat, User removedUser) {
+        ObjectNode jsonMessageNodeRemovedUser = msgToJson(DELETE_CONTACT, chat);
+        if (jsonMessageNodeRemovedUser == null) return;
+
+        WebSocketSession removedUsersession = userSessions.get(removedUser);
+        if (removedUsersession != null) try {
+            removedUsersession.sendMessage(new TextMessage(jsonMessageNodeRemovedUser.toString()));
+        } catch (IOException e) {
+            System.err.println("Error broadcasting new chat to <" + removedUser.getUsername() + ">: " + e.getMessage());
+        }
+    }
+
+    public void broadcastAddedToGroup(GroupChat chat, User addedUser) {
+        ObjectNode jsonMessageNode = msgToJson(ADD_CHAT, chat);
+        if (jsonMessageNode == null) return;
+
+        WebSocketSession session = userSessions.get(addedUser);
+        if (session == null) {
+            System.err.println("Could not broadcast to session of user: " + addedUser.getUsername() + ": Session is null");
+            return;
+        }
+
+        try {
+            session.sendMessage(new TextMessage(jsonMessageNode.toString()));
+        } catch (IOException e) {
+            System.err.println("Error broadcasting new chat to <" + addedUser.getUsername() + ">: " + e.getMessage());
+        }
+    }
+
     private void broadcastUserStatusChange(User user, WebSocketAction action) {
         ObjectNode jsonMessageNode = msgToJson(action, user);
         if (jsonMessageNode == null) return;
@@ -216,6 +268,27 @@ public class AppWebSocketHandler extends TextWebSocketHandler {
                 session.sendMessage(new TextMessage(jsonMessageNode.toString()));
             } catch (IOException e) {
                 System.err.println("Error broadcasting user status to user <" + recipient.getUsername() + ">: " + e.getMessage());
+            }
+        }
+    }
+
+    public void broadCastGroupChatChange(GroupChat groupChat, User user, WebSocketAction action) {
+        ObjectNode jsonMessageNode = oM.createObjectNode();
+        jsonMessageNode.put("action", action.name());
+
+        ObjectNode combinedData = oM.createObjectNode();
+        JsonNode groupChatJson = WebSocketMsgManager.oM.valueToTree(groupChat);
+        JsonNode userJson = WebSocketMsgManager.oM.valueToTree(user);
+        combinedData.set("groupChat", groupChatJson);
+        combinedData.set("user", userJson);
+        jsonMessageNode.set("content", combinedData);
+
+        for (User recipient : groupChat.getParticipants()) {
+            WebSocketSession session = userSessions.get(recipient);
+            if (session != null) try {
+                session.sendMessage(new TextMessage(jsonMessageNode.toString()));
+            } catch (IOException e) {
+                System.err.println("Error broadcasting GroupChat change \"" + action.name() + "\": " + e.getMessage());
             }
         }
     }
