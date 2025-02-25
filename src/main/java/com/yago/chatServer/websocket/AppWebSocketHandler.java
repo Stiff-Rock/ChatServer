@@ -18,6 +18,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 import static com.yago.chatServer.model.WebSocketAction.*;
 import static com.yago.chatServer.websocket.WebSocketMsgManager.msgToJson;
@@ -133,10 +134,12 @@ public class AppWebSocketHandler extends TextWebSocketHandler {
         }
     }
 
-    public void broadcastMessageToChatGroup(Message message) {
+    public void broadcastMessageToChatGroup(WebSocketAction action, Message message) {
         System.out.println("BROADCASTING MESSAGE TO GROUP");
 
-        ObjectNode jsonMessageNode = msgToJson(MESSAGE_RECEIVED, message);
+        if (message.isDeleted()) message.setMessageContent("Mensaje eliminado");
+
+        ObjectNode jsonMessageNode = msgToJson(action, message);
         if (jsonMessageNode == null) return;
 
         GroupChat groupChat = (GroupChat) message.getChat();
@@ -151,28 +154,33 @@ public class AppWebSocketHandler extends TextWebSocketHandler {
         }
     }
 
-    public void broadcastMessageToPrivateChat(Message message) {
+    public void broadcastMessageToPrivateChat(WebSocketAction action, Message msg) {
         System.out.println("BROADCASTING MESSAGE TO PRIVATE CHAT");
 
-        User recipient = null;
-        for (User user : message.getChat().getParticipants()) {
-            if (!user.getUsername().equals(message.getSender().getUsername())) recipient = user;
+        PrivateChat chat = (PrivateChat) msg.getChat();
+        Set<User> users = chat.getParticipants();
+        if (msg.isDeleted()) {
+            msg.setMessageContent("Mensaje eliminado");
+        } else {
+            users.remove(msg.getSender());
         }
 
-        if (recipient == null) {
-            System.err.println("COULD NOT FIND USER RECIPIENT");
+        if (users.isEmpty()) {
+            System.err.println("COULD NOT FIND USERS OF PRIVATE CHAT");
             return;
         }
 
-        WebSocketSession session = userSessions.get(recipient);
-        if (session != null && session.isOpen()) {
-            ObjectNode jsonMessageNode = msgToJson(MESSAGE_RECEIVED, message);
-            if (jsonMessageNode == null) return;
+        for (User user : users) {
+            WebSocketSession session = userSessions.get(user);
+            if (session != null && session.isOpen()) {
+                ObjectNode jsonMessageNode = msgToJson(action, msg);
+                if (jsonMessageNode == null) return;
 
-            try {
-                session.sendMessage(new TextMessage(jsonMessageNode.toString()));
-            } catch (IOException e) {
-                System.err.println("Error broadcasting message \"" + message + "\": " + e.getMessage());
+                try {
+                    session.sendMessage(new TextMessage(jsonMessageNode.toString()));
+                } catch (IOException e) {
+                    System.err.println("Error broadcasting message \"" + msg + "\" to user <" + user.getUsername() + ">: " + e.getMessage());
+                }
             }
         }
     }
