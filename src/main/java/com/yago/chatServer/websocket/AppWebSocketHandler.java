@@ -99,12 +99,12 @@ public class AppWebSocketHandler extends TextWebSocketHandler {
         JsonNode rootNode = oM.readTree(payload);
         WebSocketAction action = WebSocketAction.valueOf(rootNode.path("action").asText());
         JsonNode contentNode = rootNode.path("content");
-        if (action.equals(GET_CONTACTS_ONLINE_STATUS)) {
+        if (action.equals(GET_CONTACTS_ONLINE_STATUS) || action.equals(GET_USER_ONLINE_STATUS)) {
             User user = oM.treeToValue(contentNode, User.class);
             getUserContactsStatus(user, session);
-        } else if (action.equals(GET_USER_ONLINE_STATUS)) {
-            User user = oM.treeToValue(contentNode, User.class);
-            getUserOnlineStatus(user, session);
+        } else if (action.equals(MESSAGE_READ)) {
+            Message msg = oM.treeToValue(contentNode, Message.class);
+            broadcastMessageStatusChange(msg);
         }
     }
 
@@ -183,6 +183,24 @@ public class AppWebSocketHandler extends TextWebSocketHandler {
                 }
             }
         }
+    }
+
+    private void broadcastMessageStatusChange(Message msg) {
+//        System.err.println("HERE YEAH");
+//        if (msg.getReadBy().containsAll(msg.getChat().getParticipants())) {
+//            msg.setMessageState(MessageState.READ);
+//        } else {
+//            msg.setMessageState(MessageState.PARTIALLY_READ);
+//        }
+//
+//        ObjectNode jsonMessageNode = msgToJson(MESSAGE_READ, msg);
+//        if (jsonMessageNode == null) return;
+//        WebSocketSession session = userSessions.get(msg.getSender());
+//        try {
+//            session.sendMessage(new TextMessage(jsonMessageNode.toString()));
+//        } catch (IOException e) {
+//            System.err.println("Error broadcasting message status cahnge to user <" + msg.getSender().getUsername() + ">: " + e.getMessage());
+//        }
     }
 
     public void broadcastNewChat(BaseChat chat, Long creatorId) {
