@@ -23,8 +23,13 @@ public class Message {
     private BaseChat chat;
 
     private String messageContent;
-    @JsonFormat(pattern="yyyy-MM-dd'T'HH:mm:ss.SSS")
+
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
     private LocalDateTime timestamp;
+
+    @Enumerated(EnumType.STRING)
+    private MessageState messageState;
+
     private boolean deleted = false;
 
     public Message() {
@@ -35,6 +40,7 @@ public class Message {
         this.messageContent = messageContent;
         this.chat = chat;
         this.sender = sender;
+        messageState = MessageState.SENT;
     }
 
     public Long getId() {
@@ -77,6 +83,14 @@ public class Message {
         this.timestamp = timestamp;
     }
 
+    public MessageState getMessageState() {
+        return messageState;
+    }
+
+    public void setMessageState(MessageState messageState) {
+        this.messageState = messageState;
+    }
+
     public boolean isDeleted() {
         return deleted;
     }
@@ -100,12 +114,6 @@ public class Message {
 
     @Override
     public String toString() {
-        return "Message{" +
-                "id=" + id +
-                ", sender=" + sender +
-                ", chat=" + chat +
-                ", messageContent='" + messageContent + '\'' +
-                ", timestamp=" + timestamp +
-                '}';
+        return "Message{" + "id=" + id + ", sender=" + sender + ", chat=" + chat + ", messageContent='" + messageContent + '\'' + ", timestamp=" + timestamp + ", messageState=" + messageState + ", deleted=" + deleted + '}';
     }
 }
