@@ -24,7 +24,6 @@ public class PrivateChatsController {
     //TODO: SI YA EXISTE DEVUELVE EL EXISTENTE
     @PostMapping("/private/create")
     public PrivateChat addContact(@RequestBody PrivateChatDTO privateChatDTO) {
-        System.out.println("ADD CONTACT REQUEST: " + privateChatDTO);
         return chatService.createPrivateChat(privateChatDTO);
     }
 

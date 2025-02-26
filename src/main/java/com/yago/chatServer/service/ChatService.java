@@ -41,7 +41,6 @@ public class ChatService {
         String uniqueHash = ids.size() >= 2 ? ids.get(0) + ":" + ids.get(1) : "";
         PrivateChat existentChat = privateChatRepository.findByUniqueHash(uniqueHash);
         if (existentChat != null) {
-            System.out.println("RETURNING EXISTENT CHAT");
             return existentChat;
         }
 
@@ -49,7 +48,6 @@ public class ChatService {
         User user2 = userRepository.findById(userId2).orElseThrow(() -> new EntityNotFoundException("User not found with ID: " + userId2));
 
         PrivateChat chat = new PrivateChat(user1, user2);
-        System.out.println("CREATING PRIVATE CHAT: " + chat);
 
         privateChatRepository.save(chat);
         //TODO: PUT THE NAME OF THE OPPOSIT USER IN THE ANME OF THE CHAT
@@ -71,7 +69,6 @@ public class ChatService {
         Set<User> admins = new HashSet<>();
         admins.add(admin);
         GroupChat groupChat = new GroupChat(gcd.getChatName(), users, admins);
-        System.out.println("CREATING GROUP CHAT: " + groupChat);
 
         groupChatRepository.save(groupChat);
 

@@ -2,6 +2,7 @@ package com.yago.chatServer.controller;
 
 import com.yago.chatServer.dto.ApiResponse;
 import com.yago.chatServer.dto.MessageDTO;
+import com.yago.chatServer.dto.MessageUpdateDto;
 import com.yago.chatServer.model.*;
 import com.yago.chatServer.repository.BaseChatRepository;
 import com.yago.chatServer.repository.MessageRepository;
@@ -15,7 +16,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/api/messages")
@@ -52,8 +55,6 @@ public class MessagesController {
         else if (chat instanceof PrivateChat)
             webSocketHandler.broadcastMessageToPrivateChat(WebSocketAction.MESSAGE_RECEIVED, message);
 
-        System.out.println("Mensaje enviado por " + user.getUsername() + ":\n - " + messageDTO.getMessageContent());
-
         return message;
     }
 
@@ -88,6 +89,30 @@ public class MessagesController {
             return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse("Mensaje eliminado"));
         } catch (Exception e) {
             System.err.println("Error adding deleting message: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(new ApiResponse(e.getMessage()));
+        }
+    }
+
+    @PatchMapping("/message/update")
+    public ResponseEntity<?> updateMessageStatus(@RequestBody MessageUpdateDto mud) {
+        try {
+            Message msg = messageRepository.findById(mud.getMsgId()).orElseThrow(() -> new EntityNotFoundException("Could not find message with id " + mud.getMsgId()));
+            User user = userRepository.findById(mud.getReaderUser()).orElseThrow(() -> new EntityNotFoundException("Could not find user with id " + mud.getReaderUser()));
+            msg.markMsgReadByUser(user);
+
+            Set<User> requiredReaders = new HashSet<>(msg.getChat().getParticipants());
+            requiredReaders.remove(msg.getSender());
+
+            if (msg.getReadBy().containsAll(requiredReaders)) {
+                msg.setMessageState(MessageState.READ);
+            } else {
+                msg.setMessageState(MessageState.PARTIALLY_READ);
+            }
+            messageRepository.save(msg);
+            webSocketHandler.broadcastMessageStatusChange(msg);
+            return ResponseEntity.status(HttpStatus.ACCEPTED).body(new ApiResponse("Mensaje actualizado"));
+        } catch (Exception e) {
+            System.err.println("Error updating message: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.CONFLICT).body(new ApiResponse(e.getMessage()));
         }
     }

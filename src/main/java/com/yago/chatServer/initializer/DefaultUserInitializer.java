@@ -17,7 +17,6 @@ public class DefaultUserInitializer implements CommandLineRunner {
         if (userRepository.count() == 0) {
             User sys = new User("SYSTEM");
             userRepository.save(sys);
-            System.out.println("SYSTEM user created");
         }
     }
 }

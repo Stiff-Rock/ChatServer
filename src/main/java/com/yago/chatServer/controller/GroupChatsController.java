@@ -46,7 +46,6 @@ public class GroupChatsController {
 
     @GetMapping("/group/{groupId}")
     public GroupChat getGroupChat(@PathVariable Long groupId) {
-        System.out.println("SENDING GROUPCHAT INFORMATION");
         return groupChatRepository.findById(groupId).orElseThrow(() -> new EntityNotFoundException("Could not find GroupChat by Id " + groupId));
     }
 
@@ -55,7 +54,6 @@ public class GroupChatsController {
         try {
             GroupChat groupChat = groupChatRepository.findById(groupId).orElseThrow(() -> new EntityNotFoundException("GroupChat not found with id: " + groupId));
             User user = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
-            System.out.println("ADDING MEMBER " + user.getUsername() + " TO " + groupChat.getName());
 
             if (!groupChat.getParticipants().contains(user)) {
                 groupChat.getParticipants().add(user);
@@ -85,7 +83,6 @@ public class GroupChatsController {
         try {
             GroupChat groupChat = groupChatRepository.findById(groupId).orElseThrow(() -> new EntityNotFoundException("GroupChat not found with id: " + groupId));
             User user = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
-            System.out.println("REMOVING MEMBER " + user.getUsername() + " FROM " + groupChat.getName());
 
             if (groupChat.getParticipants().remove(user)) {
                 user.getChats().remove(groupChat);
@@ -119,7 +116,6 @@ public class GroupChatsController {
         try {
             GroupChat groupChat = groupChatRepository.findById(groupId).orElseThrow(() -> new EntityNotFoundException("GroupChat not found with id: " + groupId));
             User user = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
-            System.out.println("ADDING ADMIN " + user.getUsername());
 
             groupChat.getAdmins().add(user);
 
@@ -142,7 +138,6 @@ public class GroupChatsController {
         try {
             GroupChat groupChat = groupChatRepository.findById(groupId).orElseThrow(() -> new EntityNotFoundException("GroupChat not found with id: " + groupId));
             User user = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
-            System.out.println("REMOVING ADMIN " + user.getUsername());
 
             boolean wasAdmin = groupChat.getAdmins().remove(user);
             if (!wasAdmin) throw new EntityNotFoundException("User was not admin");

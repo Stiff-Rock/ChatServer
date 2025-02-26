@@ -62,9 +62,9 @@ public class AppWebSocketHandler extends TextWebSocketHandler {
         }
 
         if (!userSessions.containsKey(user) && !sessionUsers.containsValue(user)) {
+            System.out.println("ChatWebSocket connection established with user <" + user.getUsername() + ">");
             userSessions.put(user, session);
             sessionUsers.put(session, user);
-            System.out.println("WebSocket connection established with user <" + username + ">");
             broadcastUserStatusChange(user, WebSocketAction.USER_CONNECTED);
         } else {
             System.err.println("Error: User with username <" + username + "> already connected to the WebSocket");
@@ -79,9 +79,9 @@ public class AppWebSocketHandler extends TextWebSocketHandler {
     public void afterConnectionClosed(@NonNull WebSocketSession session, @NonNull CloseStatus status) {
         User user = sessionUsers.get(session);
         if (user != null) {
+            System.out.println("ChatWebSocket connection closed with user <" + user.getUsername() + ">");
             userSessions.remove(user);
             sessionUsers.remove(session);
-            System.out.println("Connection closed for user <" + user.getUsername() + ">");
             broadcastUserStatusChange(user, USER_DISCONNECTED);
         } else {
             StringBuilder err = new StringBuilder("Error: Could not find user for the disconnected session\n");
@@ -99,12 +99,12 @@ public class AppWebSocketHandler extends TextWebSocketHandler {
         JsonNode rootNode = oM.readTree(payload);
         WebSocketAction action = WebSocketAction.valueOf(rootNode.path("action").asText());
         JsonNode contentNode = rootNode.path("content");
-        if (action.equals(GET_CONTACTS_ONLINE_STATUS) || action.equals(GET_USER_ONLINE_STATUS)) {
+        if (action.equals(GET_CONTACTS_ONLINE_STATUS)) {
             User user = oM.treeToValue(contentNode, User.class);
             getUserContactsStatus(user, session);
-        } else if (action.equals(MESSAGE_READ)) {
-            Message msg = oM.treeToValue(contentNode, Message.class);
-            broadcastMessageStatusChange(msg);
+        } else if (action.equals(GET_USER_ONLINE_STATUS)) {
+            User user = oM.treeToValue(contentNode, User.class);
+            getUserOnlineStatus(user, session);
         }
     }
 
@@ -134,9 +134,8 @@ public class AppWebSocketHandler extends TextWebSocketHandler {
         }
     }
 
+    //TODO MAYBE THEY CAN BOTH (private and group) BE COMBINED?
     public void broadcastMessageToChatGroup(WebSocketAction action, Message message) {
-        System.out.println("BROADCASTING MESSAGE TO GROUP");
-
         if (message.isDeleted()) message.setMessageContent("Mensaje eliminado");
 
         ObjectNode jsonMessageNode = msgToJson(action, message);
@@ -147,7 +146,9 @@ public class AppWebSocketHandler extends TextWebSocketHandler {
             if (user.equals(message.getSender())) continue;
             WebSocketSession session = userSessions.get(user);
             if (session != null) try {
-                session.sendMessage(new TextMessage(jsonMessageNode.toString()));
+                synchronized (session) {
+                    session.sendMessage(new TextMessage(jsonMessageNode.toString()));
+                }
             } catch (IOException e) {
                 System.err.println("Error broadcasting message \"" + message + "\": " + e.getMessage());
             }
@@ -155,8 +156,6 @@ public class AppWebSocketHandler extends TextWebSocketHandler {
     }
 
     public void broadcastMessageToPrivateChat(WebSocketAction action, Message msg) {
-        System.out.println("BROADCASTING MESSAGE TO PRIVATE CHAT");
-
         PrivateChat chat = (PrivateChat) msg.getChat();
         Set<User> users = chat.getParticipants();
         if (msg.isDeleted()) {
@@ -177,7 +176,9 @@ public class AppWebSocketHandler extends TextWebSocketHandler {
                 if (jsonMessageNode == null) return;
 
                 try {
-                    session.sendMessage(new TextMessage(jsonMessageNode.toString()));
+                    synchronized (session) {
+                        session.sendMessage(new TextMessage(jsonMessageNode.toString()));
+                    }
                 } catch (IOException e) {
                     System.err.println("Error broadcasting message \"" + msg + "\" to user <" + user.getUsername() + ">: " + e.getMessage());
                 }
@@ -185,21 +186,16 @@ public class AppWebSocketHandler extends TextWebSocketHandler {
         }
     }
 
-    private void broadcastMessageStatusChange(Message msg) {
-        System.err.println("HERE YEAH");
-        if (msg.getReadBy().containsAll(msg.getChat().getParticipants())) {
-            msg.setMessageState(MessageState.READ);
-        } else {
-            msg.setMessageState(MessageState.PARTIALLY_READ);
-        }
-
+    public void broadcastMessageStatusChange(Message msg) {
         ObjectNode jsonMessageNode = msgToJson(MESSAGE_READ, msg);
         if (jsonMessageNode == null) return;
         WebSocketSession session = userSessions.get(msg.getSender());
         try {
-            session.sendMessage(new TextMessage(jsonMessageNode.toString()));
+            synchronized (session) {
+                session.sendMessage(new TextMessage(jsonMessageNode.toString()));
+            }
         } catch (IOException e) {
-            System.err.println("Error broadcasting message status cahnge to user <" + msg.getSender().getUsername() + ">: " + e.getMessage());
+            System.err.println("Error broadcasting message status change to user <" + msg.getSender().getUsername() + ">: " + e.getMessage());
         }
     }
 
@@ -218,7 +214,9 @@ public class AppWebSocketHandler extends TextWebSocketHandler {
             }
 
             try {
-                session.sendMessage(new TextMessage(jsonMessageNode.toString()));
+                synchronized (session) {
+                    session.sendMessage(new TextMessage(jsonMessageNode.toString()));
+                }
             } catch (IOException e) {
                 System.err.println("Error broadcasting new chat to <" + recipient.getUsername() + ">: " + e.getMessage());
             }
@@ -241,7 +239,9 @@ public class AppWebSocketHandler extends TextWebSocketHandler {
             }
 
             try {
-                session.sendMessage(new TextMessage(jsonMessageNode.toString()));
+                synchronized (session) {
+                    session.sendMessage(new TextMessage(jsonMessageNode.toString()));
+                }
             } catch (IOException e) {
                 System.err.println("Error broadcasting new chat to <" + recipient.getUsername() + ">: " + e.getMessage());
             }
@@ -254,7 +254,9 @@ public class AppWebSocketHandler extends TextWebSocketHandler {
 
         WebSocketSession removedUsersession = userSessions.get(removedUser);
         if (removedUsersession != null) try {
-            removedUsersession.sendMessage(new TextMessage(jsonMessageNodeRemovedUser.toString()));
+            synchronized (removedUsersession) {
+                removedUsersession.sendMessage(new TextMessage(jsonMessageNodeRemovedUser.toString()));
+            }
         } catch (IOException e) {
             System.err.println("Error broadcasting new chat to <" + removedUser.getUsername() + ">: " + e.getMessage());
         }
@@ -271,7 +273,9 @@ public class AppWebSocketHandler extends TextWebSocketHandler {
         }
 
         try {
-            session.sendMessage(new TextMessage(jsonMessageNode.toString()));
+            synchronized (session) {
+                session.sendMessage(new TextMessage(jsonMessageNode.toString()));
+            }
         } catch (IOException e) {
             System.err.println("Error broadcasting new chat to <" + addedUser.getUsername() + ">: " + e.getMessage());
         }
@@ -280,7 +284,6 @@ public class AppWebSocketHandler extends TextWebSocketHandler {
     private void broadcastUserStatusChange(User user, WebSocketAction action) {
         ObjectNode jsonMessageNode = msgToJson(action, user);
         if (jsonMessageNode == null) return;
-        System.out.println("BROADCASTING USER STATUS CHANGE: " + user.getUsername());
         for (BaseChat baseChat : user.getChats()) {
             WebSocketSession session;
             User recipient;
@@ -291,7 +294,9 @@ public class AppWebSocketHandler extends TextWebSocketHandler {
 
             } else continue;
             try {
-                session.sendMessage(new TextMessage(jsonMessageNode.toString()));
+                synchronized (session) {
+                    session.sendMessage(new TextMessage(jsonMessageNode.toString()));
+                }
             } catch (IOException e) {
                 System.err.println("Error broadcasting user status to user <" + recipient.getUsername() + ">: " + e.getMessage());
             }
@@ -312,7 +317,9 @@ public class AppWebSocketHandler extends TextWebSocketHandler {
         for (User recipient : groupChat.getParticipants()) {
             WebSocketSession session = userSessions.get(recipient);
             if (session != null) try {
-                session.sendMessage(new TextMessage(jsonMessageNode.toString()));
+                synchronized (session) {
+                    session.sendMessage(new TextMessage(jsonMessageNode.toString()));
+                }
             } catch (IOException e) {
                 System.err.println("Error broadcasting GroupChat change \"" + action.name() + "\": " + e.getMessage());
             }

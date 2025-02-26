@@ -50,7 +50,6 @@ public class UserService {
     public User loginUser(CredentialsDTO credentials) {
         User existingUser = userRepository.findByUsername(credentials.getUsername());
         if (existingUser == null) {
-            System.out.println("User not registered");
             return null;
         }
 

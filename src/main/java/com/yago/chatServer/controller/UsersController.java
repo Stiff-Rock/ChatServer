@@ -38,14 +38,11 @@ public class UsersController {
      */
     @PostMapping("/register")
     public ResponseEntity<ApiResponse> registerUser(@RequestBody CredentialsDTO credentials) {
-        System.out.println("Register attepmt with user <" + credentials.getUsername() + ">");
         String responseMessage = userService.registerUser(credentials);
 
         if (responseMessage.equals("Usuario registrado con éxito.")) {
-            System.out.println("Register Successful");
             return ResponseEntity.status(201).body(new ApiResponse(responseMessage));
         } else {
-            System.out.println("Register Failed");
             return ResponseEntity.status(409).body(new ApiResponse(responseMessage));
         }
     }
@@ -58,14 +55,11 @@ public class UsersController {
      */
     @PostMapping("/login")
     public ResponseEntity<?> loginUser(@RequestBody CredentialsDTO credentials) {
-        System.out.println("LogIn attepmt with user <" + credentials.getUsername() + ">");
         User user = userService.loginUser(credentials);
 
         if (user != null) {
-            System.out.println("LogIn Successful");
             return ResponseEntity.ok(user);
         } else {
-            System.out.println("LogIn Failed");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiResponse("Inicio de sesión incorrecto"));
         }
     }
