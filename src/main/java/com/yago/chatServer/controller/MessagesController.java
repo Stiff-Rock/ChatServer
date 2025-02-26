@@ -88,7 +88,7 @@ public class MessagesController {
 
             return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse("Mensaje eliminado"));
         } catch (Exception e) {
-            System.err.println("Error adding deleting message: " + e.getMessage());
+            System.err.println("Error deleting message: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.CONFLICT).body(new ApiResponse(e.getMessage()));
         }
     }

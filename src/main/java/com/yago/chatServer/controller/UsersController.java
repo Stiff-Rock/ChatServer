@@ -15,6 +15,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/**
+ * Enpoints para gestionar solicitudes relacionadas con los usuarios
+ */
 @RestController
 @RequestMapping("/api/users")
 public class UsersController {
@@ -74,12 +77,23 @@ public class UsersController {
         return webSocketHandler.getOnlineUsers();
     }
 
+    /**
+     * Endpoint para obtener una lista de chats en los que el usuario propocionado participa
+     *
+     * @param userId Usuario que solicita los chats
+     * @return Lista de chats en los que participa el usuario
+     */
     @GetMapping("/user/{userId}/chats")
     public List<BaseChat> getUserChats(@PathVariable Long userId) {
-        //TODO: PUT THE NAME OF THE OPPOSIT USER IN THE ANME OF THE CHAT
         return baseChatRepository.findByParticipants_Id(userId);
     }
 
+    /**
+     * Devuelve el objeto de {@link User} a partir del nombre de usuario
+     *
+     * @param username Nombre de usuario a buscar en la BBDD
+     * @return Objeto {@link User} o null
+     */
     @GetMapping("/user/{username}")
     public ResponseEntity<User> getUserByUsername(@PathVariable String username) {
         User user = userRepository.findByUsername(username);

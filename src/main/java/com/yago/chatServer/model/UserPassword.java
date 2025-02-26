@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 public class UserPassword {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(columnDefinition = "integer")
     private Long id;
 
     @OneToOne

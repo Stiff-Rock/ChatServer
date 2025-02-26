@@ -50,7 +50,6 @@ public class ChatService {
         PrivateChat chat = new PrivateChat(user1, user2);
 
         privateChatRepository.save(chat);
-        //TODO: PUT THE NAME OF THE OPPOSIT USER IN THE ANME OF THE CHAT
         appWebSocketHandler.broadcastNewChat(chat, userId1);
         return chat;
     }
