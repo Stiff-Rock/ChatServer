@@ -5,7 +5,9 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 @Entity
 public class Message {
@@ -29,6 +31,10 @@ public class Message {
 
     @Enumerated(EnumType.STRING)
     private MessageState messageState;
+
+    @ManyToMany
+    @JoinTable(name = "message_read_by", joinColumns = @JoinColumn(name = "message_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
+    private Set<User> readBy = new HashSet<>();
 
     private boolean deleted = false;
 
@@ -89,6 +95,18 @@ public class Message {
 
     public void setMessageState(MessageState messageState) {
         this.messageState = messageState;
+    }
+
+    public Set<User> getReadBy() {
+        return readBy;
+    }
+
+    public void setReadBy(Set<User> readBy) {
+        this.readBy = readBy;
+    }
+
+    public void markMsgReadByUser(User user) {
+        readBy.add(user);
     }
 
     public boolean isDeleted() {

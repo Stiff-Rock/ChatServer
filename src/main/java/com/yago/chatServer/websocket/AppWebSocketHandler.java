@@ -186,21 +186,21 @@ public class AppWebSocketHandler extends TextWebSocketHandler {
     }
 
     private void broadcastMessageStatusChange(Message msg) {
-//        System.err.println("HERE YEAH");
-//        if (msg.getReadBy().containsAll(msg.getChat().getParticipants())) {
-//            msg.setMessageState(MessageState.READ);
-//        } else {
-//            msg.setMessageState(MessageState.PARTIALLY_READ);
-//        }
-//
-//        ObjectNode jsonMessageNode = msgToJson(MESSAGE_READ, msg);
-//        if (jsonMessageNode == null) return;
-//        WebSocketSession session = userSessions.get(msg.getSender());
-//        try {
-//            session.sendMessage(new TextMessage(jsonMessageNode.toString()));
-//        } catch (IOException e) {
-//            System.err.println("Error broadcasting message status cahnge to user <" + msg.getSender().getUsername() + ">: " + e.getMessage());
-//        }
+        System.err.println("HERE YEAH");
+        if (msg.getReadBy().containsAll(msg.getChat().getParticipants())) {
+            msg.setMessageState(MessageState.READ);
+        } else {
+            msg.setMessageState(MessageState.PARTIALLY_READ);
+        }
+
+        ObjectNode jsonMessageNode = msgToJson(MESSAGE_READ, msg);
+        if (jsonMessageNode == null) return;
+        WebSocketSession session = userSessions.get(msg.getSender());
+        try {
+            session.sendMessage(new TextMessage(jsonMessageNode.toString()));
+        } catch (IOException e) {
+            System.err.println("Error broadcasting message status cahnge to user <" + msg.getSender().getUsername() + ">: " + e.getMessage());
+        }
     }
 
     public void broadcastNewChat(BaseChat chat, Long creatorId) {
