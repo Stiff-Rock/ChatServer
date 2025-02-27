@@ -67,7 +67,7 @@ public class AppWebSocketHandler extends TextWebSocketHandler {
             sessionUsers.put(session, user);
             broadcastUserStatusChange(user, WebSocketAction.USER_CONNECTED);
         } else {
-            System.err.println("Error: User with username <" + username + "> already connected to the WebSocket");
+            System.out.println("Warning: User with username <" + username + "> was associated to another WebSocket session, changing...");
             WebSocketSession prevSession = userSessions.get(user);
             sessionUsers.remove(prevSession);
             userSessions.put(user, session);
