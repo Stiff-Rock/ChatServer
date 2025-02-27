@@ -249,7 +249,7 @@ public class AppWebSocketHandler extends TextWebSocketHandler {
     }
 
     public void broadcastRemovedFromGroup(GroupChat chat, User removedUser) {
-        ObjectNode jsonMessageNodeRemovedUser = msgToJson(DELETE_CONTACT, chat);
+        ObjectNode jsonMessageNodeRemovedUser = msgToJson(DELETE_GROUP, chat);
         if (jsonMessageNodeRemovedUser == null) return;
 
         WebSocketSession removedUsersession = userSessions.get(removedUser);

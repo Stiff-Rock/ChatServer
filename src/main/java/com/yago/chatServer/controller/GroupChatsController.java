@@ -98,12 +98,9 @@ public class GroupChatsController {
                 User sys = userRepository.findByUsername("SYSTEM");
                 MessageDTO messageDTO = new MessageDTO(sys.getId(), groupId, msg);
                 messagesController.sendMessage(messageDTO);
+                webSocketHandler.broadCastGroupChatChange(groupChat, user, WebSocketAction.GROUP_CHAT_DELETION);
             }
-
             webSocketHandler.broadcastRemovedFromGroup(groupChat, user);
-
-            webSocketHandler.broadCastGroupChatChange(groupChat, user, WebSocketAction.GROUP_CHAT_DELETION);
-
             return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse(msg));
         } catch (Exception e) {
             System.err.println("Error removing member from group chat: " + e.getMessage());
