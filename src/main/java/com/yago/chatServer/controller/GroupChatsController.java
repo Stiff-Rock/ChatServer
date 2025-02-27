@@ -92,6 +92,7 @@ public class GroupChatsController {
 
             String msg = user.getUsername() + " salió del grupo";
             if (groupChat.getParticipants().isEmpty()) {
+                groupChatRepository.save(groupChat);
                 groupChatRepository.delete(groupChat);
             } else {
                 groupChatRepository.save(groupChat);
