@@ -71,7 +71,6 @@ public class ChatService {
         GroupChat groupChat = new GroupChat(gcd.getChatName(), users, admins);
         byte[] chatPhotoBytes = gcd.getChatPhoto();
         if (chatPhotoBytes != null) groupChat.setChatPhoto(chatPhotoBytes);
-
         groupChatRepository.save(groupChat);
 
         appWebSocketHandler.broadcastNewChat(groupChat, gcd.getAdminId());

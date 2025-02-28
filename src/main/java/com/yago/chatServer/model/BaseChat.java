@@ -1,7 +1,7 @@
 package com.yago.chatServer.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import jakarta.persistence.*;
@@ -15,10 +15,7 @@ import java.util.*;
 @Table(name = "chats")
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
-@JsonSubTypes({
-        @JsonSubTypes.Type(value = PrivateChat.class, name = "PrivateChat"),
-        @JsonSubTypes.Type(value = GroupChat.class, name = "GroupChat")
-})
+@JsonSubTypes({@JsonSubTypes.Type(value = PrivateChat.class, name = "PrivateChat"), @JsonSubTypes.Type(value = GroupChat.class, name = "GroupChat")})
 public abstract class BaseChat {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,17 +23,13 @@ public abstract class BaseChat {
     private Long id;
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.MERGE})
-    @JoinTable(
-            name = "users_chats",
-            joinColumns = @JoinColumn(name = "chatId"),
-            inverseJoinColumns = @JoinColumn(name = "userId")
-    )
-    @JsonManagedReference
+    @JoinTable(name = "users_chats", joinColumns = @JoinColumn(name = "chatId"), inverseJoinColumns = @JoinColumn(name = "userId"))
     private Set<User> participants = new HashSet<>();
 
     @OneToMany(mappedBy = "chat", cascade = CascadeType.ALL, orphanRemoval = true)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonBackReference
+    @JsonIgnore
     private List<Message> messages = new ArrayList<>();
 
     public BaseChat() {

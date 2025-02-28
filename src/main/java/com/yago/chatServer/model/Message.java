@@ -37,11 +37,7 @@ public class Message {
     private MessageState messageState;
 
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.EAGER)
-    @JoinTable(
-            name = "message_read_by",
-            joinColumns = @JoinColumn(name = "message_id"),
-            inverseJoinColumns = @JoinColumn(name = "user_id")
-    )
+    @JoinTable(name = "message_read_by", joinColumns = @JoinColumn(name = "message_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Set<User> readBy = new HashSet<>();
 

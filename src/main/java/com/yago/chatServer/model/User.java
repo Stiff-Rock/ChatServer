@@ -17,6 +17,7 @@ public class User {
 
     @Basic(fetch = FetchType.LAZY)
     @Column(columnDefinition = "BLOB")
+    @JsonIgnore
     private byte[] profilePicture;
 
     @Column(unique = true)
@@ -27,7 +28,7 @@ public class User {
     private UserPassword userPassword;
 
     @ManyToMany(mappedBy = "participants", fetch = FetchType.EAGER)
-    @JsonBackReference
+    @JsonIgnore
     private Set<BaseChat> chats;
 
     public User() {

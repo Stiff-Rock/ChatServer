@@ -44,7 +44,6 @@ public class PrivateChat extends BaseChat {
         return name;
     }
 
-    //TODO: REVISAR DONE SE PUEDE SUAR EN EL SERVER
     // Metodo para obetener al usuario del set que no es el actual
     public User getContact(User currentUser) {
         User contact = null;

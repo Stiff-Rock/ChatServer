@@ -8,6 +8,7 @@ import com.yago.chatServer.repository.BaseChatRepository;
 import com.yago.chatServer.repository.UserRepository;
 import com.yago.chatServer.service.UserService;
 import com.yago.chatServer.websocket.AppWebSocketHandler;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

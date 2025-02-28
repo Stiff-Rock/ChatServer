@@ -1,5 +1,6 @@
 package com.yago.chatServer.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.util.Set;
@@ -15,6 +16,7 @@ public class GroupChat extends BaseChat {
 
     @Basic(fetch = FetchType.LAZY)
     @Column(columnDefinition = "BLOB")
+    @JsonIgnore
     private byte[] chatPhoto;
 
     public GroupChat() {
