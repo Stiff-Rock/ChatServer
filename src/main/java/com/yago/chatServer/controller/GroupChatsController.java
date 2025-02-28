@@ -6,6 +6,7 @@ import com.yago.chatServer.dto.MessageDTO;
 import com.yago.chatServer.model.GroupChat;
 import com.yago.chatServer.model.User;
 import com.yago.chatServer.model.WebSocketAction;
+import com.yago.chatServer.repository.BaseChatRepository;
 import com.yago.chatServer.repository.GroupChatRepository;
 import com.yago.chatServer.repository.UserRepository;
 import com.yago.chatServer.service.ChatService;
@@ -25,6 +26,9 @@ public class GroupChatsController {
 
     @Autowired
     private GroupChatRepository groupChatRepository;
+
+    @Autowired
+    private BaseChatRepository baseChatRepository;
 
     @Autowired
     private UserRepository userRepository;
@@ -95,7 +99,7 @@ public class GroupChatsController {
             String msg = user.getUsername() + " salió del grupo";
             if (groupChat.getParticipants().isEmpty()) {
                 groupChatRepository.save(groupChat);
-                groupChatRepository.delete(groupChat);
+                baseChatRepository.deleteChatCascade(groupId);
             } else {
                 groupChatRepository.save(groupChat);
                 User sys = userRepository.findByUsername("SYSTEM");

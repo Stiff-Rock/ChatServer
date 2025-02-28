@@ -4,6 +4,7 @@ import com.yago.chatServer.dto.ApiResponse;
 import com.yago.chatServer.dto.PrivateChatDTO;
 import com.yago.chatServer.model.PrivateChat;
 import com.yago.chatServer.repository.BaseChatRepository;
+import com.yago.chatServer.repository.PrivateChatRepository;
 import com.yago.chatServer.service.ChatService;
 import com.yago.chatServer.websocket.AppWebSocketHandler;
 import jakarta.persistence.EntityNotFoundException;
@@ -33,7 +34,7 @@ public class PrivateChatsController {
     public ResponseEntity<?> deleteContact(@PathVariable Long chatId) {
         try {
             PrivateChat chat = (PrivateChat) baseChatRepository.findById(chatId).orElseThrow(() -> new EntityNotFoundException("Could not find private chat by id " + chatId));
-            baseChatRepository.delete(chat);
+            baseChatRepository.deleteChatCascade(chatId);
             webSocketHandler.broadcastDeleteContact(chat, -1L);
             return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse("Contacto eliminado"));
         } catch (Exception e) {
