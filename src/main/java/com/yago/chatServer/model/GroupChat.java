@@ -8,9 +8,14 @@ import java.util.Set;
 @Table(name = "group_chats")
 public class GroupChat extends BaseChat {
     private String name;
+
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "group_chat_admins", joinColumns = @JoinColumn(name = "group_chat_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
     private Set<User> admins;
+
+    @Basic(fetch = FetchType.LAZY)
+    @Column(columnDefinition = "BLOB")
+    private byte[] chatPhoto;
 
     public GroupChat() {
     }
@@ -36,6 +41,14 @@ public class GroupChat extends BaseChat {
 
     public void setAdmins(Set<User> admins) {
         this.admins = admins;
+    }
+
+    public byte[] getChatPhoto() {
+        return chatPhoto;
+    }
+
+    public void setChatPhoto(byte[] chatPhoto) {
+        this.chatPhoto = chatPhoto;
     }
 
     @Override

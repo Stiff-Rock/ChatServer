@@ -10,6 +10,7 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -28,10 +29,11 @@ public class PrivateChatsController {
     }
 
     @DeleteMapping("/private/delete/{chatId}")
+    @Transactional
     public ResponseEntity<?> deleteContact(@PathVariable Long chatId) {
         try {
             PrivateChat chat = (PrivateChat) baseChatRepository.findById(chatId).orElseThrow(() -> new EntityNotFoundException("Could not find private chat by id " + chatId));
-            baseChatRepository.deleteWithCascade(chat.getId());
+            baseChatRepository.delete(chat);
             webSocketHandler.broadcastDeleteContact(chat, -1L);
             return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse("Contacto eliminado"));
         } catch (Exception e) {

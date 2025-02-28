@@ -1,7 +1,6 @@
 package com.yago.chatServer.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
@@ -23,8 +22,13 @@ public class Message {
     private User sender;
 
     @ManyToOne
-    @JoinColumn(name = "chat_id")
-    @JsonManagedReference
+    @JoinColumn(
+            name = "chat_id",
+            foreignKey = @ForeignKey(
+                    name = "fk_message_chat",
+                    foreignKeyDefinition = "FOREIGN KEY (chat_id) REFERENCES chats(id) ON DELETE CASCADE"
+            )
+    )
     private BaseChat chat;
 
     private String messageContent;
@@ -35,13 +39,18 @@ public class Message {
     @Enumerated(EnumType.STRING)
     private MessageState messageState;
 
-    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @ManyToMany
     @JoinTable(
             name = "message_read_by",
-            joinColumns = @JoinColumn(name = "message_id"),
+            joinColumns = @JoinColumn(
+                    name = "message_id",
+                    foreignKey = @ForeignKey(
+                            name = "fk_message_read_by",
+                            foreignKeyDefinition = "FOREIGN KEY (message_id) REFERENCES message(id) ON DELETE CASCADE"
+                    )
+            ),
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
-    @OnDelete(action = OnDeleteAction.CASCADE)
     private Set<User> readBy = new HashSet<>();
 
     private boolean deleted = false;

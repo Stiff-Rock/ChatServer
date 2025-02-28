@@ -12,8 +12,8 @@ import java.util.List;
 public interface BaseChatRepository extends JpaRepository<BaseChat, Long> {
     List<BaseChat> findByParticipants_Id(Long userId);
 
-    @Modifying
-    @Query("DELETE FROM BaseChat c WHERE c.id = :chatId")
-    @Transactional
-    void deleteWithCascade(@Param("chatId") Long chatId);
+//    @Modifying
+//    @Query("DELETE FROM BaseChat c WHERE c.id = :chatId")
+//    @Transactional
+//    void deleteWithCascade(@Param("chatId") Long chatId);
 }

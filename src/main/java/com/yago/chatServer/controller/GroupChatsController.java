@@ -14,6 +14,7 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -79,6 +80,7 @@ public class GroupChatsController {
     }
 
     @DeleteMapping("/{groupId}/members/{userId}")
+    @Transactional
     public ResponseEntity<?> removeMember(@PathVariable Long groupId, @PathVariable Long userId) {
         try {
             GroupChat groupChat = groupChatRepository.findById(groupId).orElseThrow(() -> new EntityNotFoundException("GroupChat not found with id: " + groupId));

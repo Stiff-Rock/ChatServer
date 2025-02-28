@@ -25,17 +25,17 @@ public abstract class BaseChat {
     @Column(columnDefinition = "integer")
     private Long id;
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.MERGE})
     @JoinTable(
             name = "users_chats",
             joinColumns = @JoinColumn(name = "chatId"),
             inverseJoinColumns = @JoinColumn(name = "userId")
     )
-    @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonManagedReference
     private Set<User> participants = new HashSet<>();
 
     @OneToMany(mappedBy = "chat", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonBackReference
     private List<Message> messages = new ArrayList<>();
 

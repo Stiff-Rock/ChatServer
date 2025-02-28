@@ -15,6 +15,10 @@ public class User {
     @Column(columnDefinition = "integer")
     private Long id;
 
+    @Basic(fetch = FetchType.LAZY)
+    @Column(columnDefinition = "BLOB")
+    private byte[] profilePicture;
+
     @Column(unique = true)
     private String username;
 
@@ -39,6 +43,14 @@ public class User {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public byte[] getProfilePicture() {
+        return profilePicture;
+    }
+
+    public void setProfilePicture(byte[] profilePicture) {
+        this.profilePicture = profilePicture;
     }
 
     public String getUsername() {
