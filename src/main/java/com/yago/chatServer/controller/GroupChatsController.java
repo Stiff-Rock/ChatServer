@@ -159,4 +159,10 @@ public class GroupChatsController {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(new ApiResponse(e.getMessage()));
         }
     }
+
+    @GetMapping("/{groupId}/photo")
+    public ResponseEntity<byte[]> getGroupChatPhoto(@PathVariable Long groupId) {
+        GroupChat chat = groupChatRepository.findById(groupId).orElseThrow(() -> new EntityNotFoundException("Could not find groupChat by id " + groupId));
+        return ResponseEntity.ok(chat.getChatPhoto());
+    }
 }

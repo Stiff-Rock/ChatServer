@@ -1,6 +1,6 @@
 package com.yago.chatServer.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
@@ -15,10 +15,7 @@ public class User {
     @Column(columnDefinition = "integer")
     private Long id;
 
-    @Basic(fetch = FetchType.LAZY)
-    @Column(columnDefinition = "BLOB")
-    @JsonIgnore
-    private byte[] profilePicture;
+    private String profilePictureUrl;
 
     @Column(unique = true)
     private String username;
@@ -46,12 +43,12 @@ public class User {
         this.id = id;
     }
 
-    public byte[] getProfilePicture() {
-        return profilePicture;
+    public String getProfilePictureUrl() {
+        return profilePictureUrl;
     }
 
-    public void setProfilePicture(byte[] profilePicture) {
-        this.profilePicture = profilePicture;
+    public void setProfilePictureUrl(String profilePictureUrl) {
+        this.profilePictureUrl = profilePictureUrl;
     }
 
     public String getUsername() {
