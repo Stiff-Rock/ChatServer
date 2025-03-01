@@ -88,7 +88,7 @@ public class GroupChatWebSocketHandler extends TextWebSocketHandler {
         if (user != null) {
             userSessions.remove(user);
             sessionUsers.remove(session);
-            System.out.println("Connection closed for user <" + user.getUsername() + ">");
+            System.out.println("GroupChatWebSocketError Connection closed for user <" + user.getUsername() + ">");
             broadcastUserStatusChange(user.getUsername(), USER_DISCONNECTED_FROM_GROUP_CHAT, session);
         } else {
             System.err.println("Error: Could not find user for the disconnected session");
