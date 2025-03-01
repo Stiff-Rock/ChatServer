@@ -160,9 +160,14 @@ public class GroupChatsController {
         }
     }
 
-    @GetMapping("/{groupId}/photo")
-    public ResponseEntity<byte[]> getGroupChatPhoto(@PathVariable Long groupId) {
-        GroupChat chat = groupChatRepository.findById(groupId).orElseThrow(() -> new EntityNotFoundException("Could not find groupChat by id " + groupId));
-        return ResponseEntity.ok(chat.getChatPhoto());
+    @PostMapping("/{groupId}/photo")
+    public ResponseEntity<ApiResponse> updateGroupChatPorfilePicture(@PathVariable Long groupId) {
+        try {
+            GroupChat groupChat = groupChatRepository.findById(groupId).orElseThrow(() -> new EntityNotFoundException("Could not find group chat by id " + groupId));
+            return ResponseEntity.ok(new ApiResponse());
+        } catch (EntityNotFoundException e) {
+            System.err.println("Error updating group chat photo: " + e.getMessage());
+            return ResponseEntity.notFound().build();
+        }
     }
 }

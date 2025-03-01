@@ -90,6 +90,6 @@ public class User {
 
     @Override
     public String toString() {
-        return "User{" + "id=" + id + ", username='" + username + '\'' + '}';
+        return "User{" + "id=" + id + ", profilePictureUrl='" + profilePictureUrl + '\'' + ", username='" + username + '\'' + '}';
     }
 }

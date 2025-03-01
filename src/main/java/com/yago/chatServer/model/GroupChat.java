@@ -1,6 +1,5 @@
 package com.yago.chatServer.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.util.Set;
@@ -14,10 +13,7 @@ public class GroupChat extends BaseChat {
     @JoinTable(name = "group_chat_admins", joinColumns = @JoinColumn(name = "group_chat_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
     private Set<User> admins;
 
-    @Basic(fetch = FetchType.LAZY)
-    @Column(columnDefinition = "BLOB")
-    @JsonIgnore
-    private byte[] chatPhoto;
+    private String chatPhotoUrl;
 
     public GroupChat() {
     }
@@ -45,12 +41,12 @@ public class GroupChat extends BaseChat {
         this.admins = admins;
     }
 
-    public byte[] getChatPhoto() {
-        return chatPhoto;
+    public String getChatPhotoUrl() {
+        return chatPhotoUrl;
     }
 
-    public void setChatPhoto(byte[] chatPhoto) {
-        this.chatPhoto = chatPhoto;
+    public void setChatPhotoUrl(String chatPhotoUrl) {
+        this.chatPhotoUrl = chatPhotoUrl;
     }
 
     @Override

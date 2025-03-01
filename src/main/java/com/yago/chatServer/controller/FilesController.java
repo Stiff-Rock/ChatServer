@@ -30,7 +30,6 @@ public class FilesController {
             Files.write(filePath, file.getBytes());
 
             String imageUrl = "http://{ipAndPort}/uploads/" + fileName;
-            System.out.println(imageUrl);
             return ResponseEntity.ok(Collections.singletonMap("url", imageUrl));
         } catch (IOException e) {
             return ResponseEntity.internalServerError().build();

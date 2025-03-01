@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -75,7 +76,14 @@ public class UsersController {
      */
     @GetMapping("/online")
     public List<User> getOnlineUsers() {
-        return webSocketHandler.getOnlineUsers();
+        List<User> users = webSocketHandler.getOnlineUsers();
+        List<User> updatedUsers = new ArrayList<>();
+        for (User user : users) {
+            User updatedUser = userRepository.findById(user.getId()).orElse(null);
+            if (updatedUser == null) continue;
+            updatedUsers.add(updatedUser);
+        }
+        return updatedUsers;
     }
 
     /**
@@ -102,5 +110,19 @@ public class UsersController {
         if (user == null) return ResponseEntity.notFound().build();
 
         return ResponseEntity.ok(user);
+    }
+
+    @PostMapping("/user/{userId}/pfp")
+    public ResponseEntity<ApiResponse> updateUserPorfilePicture(@PathVariable Long userId, @RequestParam("imageUrl") String imageUrl) {
+        try {
+            User user = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("Could not find user by id " + userId));
+            user.setProfilePictureUrl(imageUrl);
+            userRepository.save(user);
+
+            return ResponseEntity.ok(new ApiResponse());
+        } catch (EntityNotFoundException e) {
+            System.err.println("Error updating user profile picture: " + e.getMessage());
+            return ResponseEntity.notFound().build();
+        }
     }
 }
