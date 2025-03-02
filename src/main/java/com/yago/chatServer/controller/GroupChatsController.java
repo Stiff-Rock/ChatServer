@@ -159,6 +159,8 @@ public class GroupChatsController {
             User user = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
 
             groupChat.getAdmins().add(user);
+            groupChatRepository.save(groupChat);
+
 
             String msg = user.getUsername() + " ahora es administrador";
             User sys = userRepository.findByUsername("SYSTEM");
@@ -189,6 +191,8 @@ public class GroupChatsController {
 
             boolean wasAdmin = groupChat.getAdmins().remove(user);
             if (!wasAdmin) throw new EntityNotFoundException("User was not admin");
+
+            groupChatRepository.save(groupChat);
 
             String msg = user.getUsername() + " ya no es administrador";
             User sys = userRepository.findByUsername("SYSTEM");

@@ -15,10 +15,7 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static com.yago.chatServer.model.WebSocketAction.*;
 import static com.yago.chatServer.websocket.WebSocketMsgManager.msgToJson;
@@ -160,12 +157,20 @@ public class AppWebSocketHandler extends TextWebSocketHandler {
 
     public void broadcastMessageToPrivateChat(WebSocketAction action, Message msg) {
         PrivateChat chat = (PrivateChat) msg.getChat();
-        Set<User> users = chat.getParticipants();
+        Set<User> users = new HashSet<>(chat.getParticipants());
         if (msg.isDeleted()) {
             msg.setMessageContent("Mensaje eliminado");
-        
+        } else {
+            users.remove(msg.getSender());
+        }
+
+        if (users.isEmpty()) {
+            System.err.println("COULD NOT FIND USERS OF PRIVATE CHAT");
+            return;
+        }
 
         for (User user : users) {
+            if (user == msg.getSender()) continue;
             WebSocketSession session = userSessions.get(user);
             if (session != null && session.isOpen()) {
                 ObjectNode jsonMessageNode = msgToJson(action, msg);
