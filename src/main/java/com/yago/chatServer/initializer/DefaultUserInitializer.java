@@ -6,6 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
+/**
+ * Crea un usuario para el servidor para el envio de notificaciones
+ */
 @Component
 public class DefaultUserInitializer implements CommandLineRunner {
 

@@ -18,6 +18,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * Controlador de enpoints relacionados con los chats grupales
+ */
 @RestController
 @RequestMapping("/api/groups")
 public class GroupChatsController {
@@ -39,6 +42,12 @@ public class GroupChatsController {
     @Autowired
     private MessagesController messagesController;
 
+    /**
+     * Enpoint para crear un nuevo chat grupal
+     *
+     * @param gcd Solicitud de creación de grupo recibida
+     * @return {@link GroupChat} si se ha creado o {@link ApiResponse} en caso de conflicto
+     */
     @PostMapping("/create")
     public ResponseEntity<?> createGroupChat(@RequestBody GroupChatDTO gcd) {
         try {
@@ -49,13 +58,27 @@ public class GroupChatsController {
         }
     }
 
+    /**
+     * Endpoint para la obtenición de la información de un {@link GroupChat} a partir de su id
+     *
+     * @param groupId Id del grupo del que se quiere obtener la información
+     * @return objeto {@link GroupChat}
+     */
     @GetMapping("/group/{groupId}")
     public GroupChat getGroupChat(@PathVariable Long groupId) {
         return groupChatRepository.findById(groupId).orElseThrow(() -> new EntityNotFoundException("Could not find GroupChat by Id " + groupId));
     }
 
+    /**
+     * Enpoint para añadir a un nuevo miembro al chat grupal
+     *
+     * @param groupId Id del grupo al que se va a añadir un nuevo miembro
+     * @param userId  Id del usuario que se quiere añadir al grupo
+     * @param userId  Id del usuario que se quiere añadir al grupo
+     * @return {@link ApiResponse} con el resultado de la solicitud
+     */
     @PostMapping("/{groupId}/members/{userId}")
-    public ResponseEntity<?> addMember(@PathVariable Long groupId, @PathVariable Long userId) {
+    public ResponseEntity<ApiResponse> addMember(@PathVariable Long groupId, @PathVariable Long userId) {
         try {
             GroupChat groupChat = groupChatRepository.findById(groupId).orElseThrow(() -> new EntityNotFoundException("GroupChat not found with id: " + groupId));
             User user = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
@@ -83,9 +106,16 @@ public class GroupChatsController {
         }
     }
 
+    /**
+     * Enpoint para eliminar a un miembro de un chat grupal
+     *
+     * @param groupId Id del grupo del que se va a eliminar un miembro
+     * @param userId  Id del usuario que se va a eliminar del grupo
+     * @return {@link ApiResponse} con el resultado de la solicitud
+     */
     @DeleteMapping("/{groupId}/members/{userId}")
     @Transactional
-    public ResponseEntity<?> removeMember(@PathVariable Long groupId, @PathVariable Long userId) {
+    public ResponseEntity<ApiResponse> removeMember(@PathVariable Long groupId, @PathVariable Long userId) {
         try {
             GroupChat groupChat = groupChatRepository.findById(groupId).orElseThrow(() -> new EntityNotFoundException("GroupChat not found with id: " + groupId));
             User user = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
@@ -115,8 +145,15 @@ public class GroupChatsController {
         }
     }
 
+    /**
+     * Enpoint para dar privilegios de administrador a un miembro del grupo
+     *
+     * @param groupId Id del grupo
+     * @param userId  Id del usuario al que se le van a dar los priviliegios
+     * @return {@link ApiResponse} con el resultado de la solicitud
+     */
     @PostMapping("/{groupId}/admins/{userId}")
-    public ResponseEntity<?> addAdmin(@PathVariable Long groupId, @PathVariable Long userId) {
+    public ResponseEntity<ApiResponse> addAdmin(@PathVariable Long groupId, @PathVariable Long userId) {
         try {
             GroupChat groupChat = groupChatRepository.findById(groupId).orElseThrow(() -> new EntityNotFoundException("GroupChat not found with id: " + groupId));
             User user = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
@@ -137,8 +174,15 @@ public class GroupChatsController {
         }
     }
 
+    /**
+     * Enpoint para revocar los privilegios de administrador a un miembro
+     *
+     * @param groupId Id del grupo
+     * @param userId  Id del usuario al que se le van a revocar los privilegios
+     * @return {@link ApiResponse} con el resultado de la solicituds
+     */
     @DeleteMapping("/{groupId}/admins/{userId}")
-    public ResponseEntity<?> removeAdmin(@PathVariable Long groupId, @PathVariable Long userId) {
+    public ResponseEntity<ApiResponse> removeAdmin(@PathVariable Long groupId, @PathVariable Long userId) {
         try {
             GroupChat groupChat = groupChatRepository.findById(groupId).orElseThrow(() -> new EntityNotFoundException("GroupChat not found with id: " + groupId));
             User user = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
@@ -160,6 +204,13 @@ public class GroupChatsController {
         }
     }
 
+    /**
+     * Endpoint para actualizar la foto del grupo
+     *
+     * @param groupId  Id del grupo
+     * @param imageUrl Url de la imagen almacenada en la base de datos
+     * @return {@link ApiResponse} con el resultado de la solicituds
+     */
     @PostMapping("/{groupId}/photo")
     public ResponseEntity<ApiResponse> updateGroupChatPhoto(@PathVariable Long groupId, @RequestParam("imageUrl") String imageUrl) {
         try {

@@ -7,6 +7,9 @@ import com.yago.chatServer.model.WebSocketAction;
 
 import java.io.IOException;
 
+/**
+ * Clase para estandarizar la serialización de notificaciones del WebSocket
+ */
 public class WebSocketMsgManager {
     public static final ObjectMapper oM = new ObjectMapper().registerModule(new JavaTimeModule());
 

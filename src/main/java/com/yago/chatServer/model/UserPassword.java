@@ -1,7 +1,19 @@
 package com.yago.chatServer.model;
 
 import jakarta.persistence.*;
-//TODO: CASCADE DELETIONS
+
+/**
+ * Clase que representa la contraseña de un usuario en el sistema.
+ * </p>
+ * Atributos:
+ * <p>
+ * - {@link #id}: Id único de la contraseña en la BBDD, generado automáticamente.
+ * <p>
+ * - {@link #user}: Usuario al que pertenece la contraseña, establecido por una relación {@link OneToOne} con la entidad {@link User}.
+ * <p>
+ * - {@link #password}: Contraseña hahseada del usuario.
+ */
+
 @Entity
 public class UserPassword {
     @Id
@@ -49,10 +61,6 @@ public class UserPassword {
 
     @Override
     public String toString() {
-        return "UserPassword{" +
-                "id=" + id +
-                ", user=" + user +
-                ", password='" + password + '\'' +
-                '}';
+        return "UserPassword{" + "id=" + id + ", user=" + user + ", password='" + password + '\'' + '}';
     }
 }

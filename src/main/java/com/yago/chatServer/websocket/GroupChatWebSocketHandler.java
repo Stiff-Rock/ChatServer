@@ -25,6 +25,9 @@ import static com.yago.chatServer.model.WebSocketAction.USER_CONNECTED_TO_GROUP_
 import static com.yago.chatServer.model.WebSocketAction.USER_DISCONNECTED_FROM_GROUP_CHAT;
 import static com.yago.chatServer.websocket.WebSocketMsgManager.msgToJson;
 
+/**
+ * Handler del WebSocket de chats grupales
+ */
 public class GroupChatWebSocketHandler extends TextWebSocketHandler {
 
     private final HashMap<User, WebSocketSession> userSessions = new HashMap<>();

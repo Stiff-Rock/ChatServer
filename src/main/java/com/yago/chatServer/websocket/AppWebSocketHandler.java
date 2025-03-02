@@ -24,6 +24,9 @@ import static com.yago.chatServer.model.WebSocketAction.*;
 import static com.yago.chatServer.websocket.WebSocketMsgManager.msgToJson;
 import static com.yago.chatServer.websocket.WebSocketMsgManager.oM;
 
+/**
+ * Handler del WebSocket de la aplicación
+ */
 public class AppWebSocketHandler extends TextWebSocketHandler {
 
     private final HashMap<User, WebSocketSession> userSessions = new HashMap<>();
@@ -160,14 +163,7 @@ public class AppWebSocketHandler extends TextWebSocketHandler {
         Set<User> users = chat.getParticipants();
         if (msg.isDeleted()) {
             msg.setMessageContent("Mensaje eliminado");
-        } else {
-            users.remove(msg.getSender());
-        }
-
-        if (users.isEmpty()) {
-            System.err.println("COULD NOT FIND USERS OF PRIVATE CHAT");
-            return;
-        }
+        
 
         for (User user : users) {
             WebSocketSession session = userSessions.get(user);

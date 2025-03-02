@@ -4,6 +4,10 @@ import com.yago.chatServer.model.Message;
 import com.yago.chatServer.model.MessageState;
 import com.yago.chatServer.model.User;
 
+/**
+ * Data Tansfer Object para estandarizar la serialización de las solicitudes de actualización
+ * de mensajes.
+ */
 public class MessageUpdateDto {
     private Long readerUser;
     private Long msgId;

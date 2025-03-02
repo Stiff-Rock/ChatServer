@@ -112,6 +112,13 @@ public class UsersController {
         return ResponseEntity.ok(user);
     }
 
+    /**
+     * Endpoint para actualizar la foto de perfil de un usuario
+     *
+     * @param userId   Id del usuario solicitante
+     * @param imageUrl Url de la imagen almacenada en la BBDD
+     * @return {@link ApiResponse} con el resultado de la solicitud
+     */
     @PostMapping("/user/{userId}/pfp")
     public ResponseEntity<ApiResponse> updateUserPorfilePicture(@PathVariable Long userId, @RequestParam("imageUrl") String imageUrl) {
         try {

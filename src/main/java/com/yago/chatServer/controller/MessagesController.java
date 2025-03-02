@@ -20,6 +20,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Controller para gestionar los enpoints relacionados con los mensajes
+ */
 @RestController
 @RequestMapping("/api/messages")
 public class MessagesController {
@@ -38,6 +41,12 @@ public class MessagesController {
     @Autowired
     private UserRepository userRepository;
 
+    /**
+     * Endpoint para enviar un mensaje
+     *
+     * @param messageDTO Solicitud de envio de mensaje
+     * @return Objeto {@link Message}
+     */
     @PostMapping("/send")
     public Message sendMessage(@RequestBody MessageDTO messageDTO) {
         Long chatId = messageDTO.getChatId();
@@ -58,6 +67,12 @@ public class MessagesController {
         return message;
     }
 
+    /**
+     * Enpoint para obtener el historial de mensajes de un chat
+     *
+     * @param chatId Id del chat
+     * @return Lista de mensajes de el chat dado
+     */
     @GetMapping("/history/{chatId}")
     public List<Message> getMessageHistory(@PathVariable Long chatId) {
         List<Message> msgs = messageRepository.findByChatId(chatId);
@@ -67,13 +82,25 @@ public class MessagesController {
         return msgs;
     }
 
+    /**
+     * Enpoint para obtener los mensajes enviados por un usuario
+     *
+     * @param userId Id del usuario
+     * @return Lista de mensajes enviados por le usuario solicitado
+     */
     @GetMapping("/private/{userId}")
     public List<Message> getUserMessages(@PathVariable Long userId) {
         return messageRepository.findBySenderId(userId);
     }
 
+    /**
+     * Endpoint para marcar un mensaje como borrado
+     *
+     * @param messageId Id del mensaje
+     * @return {@link ApiResponse} con el resultado de la solicitud
+     */
     @PutMapping("/message/{messageId}")
-    public ResponseEntity<?> deleteMessage(@PathVariable Long messageId) {
+    public ResponseEntity<ApiResponse> deleteMessage(@PathVariable Long messageId) {
         try {
             Message msg = messageRepository.findById(messageId).orElseThrow(() -> new EntityNotFoundException("Could not find message by id " + messageId));
             msg.setDeleted(true);
@@ -93,8 +120,14 @@ public class MessagesController {
         }
     }
 
+    /**
+     * Endpoint para actualizar el estado de un mensaje
+     *
+     * @param mud Solicitud con la información a actualizar del mensaje
+     * @return {@link ApiResponse} con el resultado de la solicitud
+     */
     @PatchMapping("/message/update")
-    public ResponseEntity<?> updateMessageStatus(@RequestBody MessageUpdateDto mud) {
+    public ResponseEntity<ApiResponse> updateMessageStatus(@RequestBody MessageUpdateDto mud) {
         try {
             Message msg = messageRepository.findById(mud.getMsgId()).orElseThrow(() -> new EntityNotFoundException("Could not find message with id " + mud.getMsgId()));
             User user = userRepository.findById(mud.getReaderUser()).orElseThrow(() -> new EntityNotFoundException("Could not find user with id " + mud.getReaderUser()));

@@ -14,10 +14,19 @@ import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.Map;
 
+/**
+ * Controller para gestionar la subida de archivos de imagen al servidor
+ */
 @RestController
 @RequestMapping("/api/files")
 public class FilesController {
 
+    /**
+     * Endpoint para la subida de archivos de imagenes al servidor
+     *
+     * @param file Archivo enviado
+     * @return JSON -> {"url": "(imageUrl)"}
+     */
     @PostMapping("/upload")
     public ResponseEntity<Map<String, String>> uploadImage(@RequestParam("file") MultipartFile file) {
         String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();

@@ -6,6 +6,20 @@ import jakarta.persistence.Table;
 
 import java.util.*;
 
+/**
+ * Clase que representa un chat privado
+ * </p>
+ * Hereda de {@link BaseChat}
+ * </p>
+ * Atributos:
+ * <p>
+ * - {@link #name}: Nombre del chat que se compone de los nombres de usuario de ambos usuarios
+ * organizados por orden alfabético y concatenados por un "&", se usa solo para consulta en la BBDD
+ * <p>
+ * - {@link #uniqueHash}: Genera un codigo único a partir de los ids de los usuarios que sirve
+ * para evitar crear más de un chat privado entre los mismos usuarios
+ */
+
 @Entity
 @Table(name = "private_chats")
 public class PrivateChat extends BaseChat {

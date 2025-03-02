@@ -2,6 +2,10 @@ package com.yago.chatServer.dto;
 
 import java.util.Set;
 
+/**
+ * Data Tansfer Object para estandarizar la serialización de las solicitudes de
+ * creación de chat grupales.
+ */
 public class GroupChatDTO {
     private String chatName;
     private Set<Long> participants;
