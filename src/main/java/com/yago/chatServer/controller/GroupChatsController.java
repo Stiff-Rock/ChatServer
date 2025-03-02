@@ -74,7 +74,6 @@ public class GroupChatsController {
      *
      * @param groupId Id del grupo al que se va a añadir un nuevo miembro
      * @param userId  Id del usuario que se quiere añadir al grupo
-     * @param userId  Id del usuario que se quiere añadir al grupo
      * @return {@link ApiResponse} con el resultado de la solicitud
      */
     @PostMapping("/{groupId}/members/{userId}")

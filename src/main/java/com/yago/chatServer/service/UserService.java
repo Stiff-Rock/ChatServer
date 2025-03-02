@@ -11,14 +11,10 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class UserService {
-    private final UserRepository userRepository;
-    private final UserPasswordRepository userPasswordRepository;
-
     @Autowired
-    public UserService(UserPasswordRepository userPasswordRepository, UserRepository userRepository) {
-        this.userPasswordRepository = userPasswordRepository;
-        this.userRepository = userRepository;
-    }
+    private UserRepository userRepository;
+    @Autowired
+    private UserPasswordRepository userPasswordRepository;
 
     /**
      * Registra en la BBDD SQLite si no existe ya
